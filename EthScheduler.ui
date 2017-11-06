@@ -17,7 +17,22 @@
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QTableWidget" name="worker_tableWidget">
+      <property name="dragEnabled">
+       <bool>true</bool>
+      </property>
       <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectRows</enum>
+      </property>
+      <property name="textElideMode">
+       <enum>Qt::ElideMiddle</enum>
+      </property>
+      <property name="showGrid">
+       <bool>false</bool>
+      </property>
+      <property name="sortingEnabled">
        <bool>true</bool>
       </property>
       <attribute name="horizontalHeaderCascadingSectionResizes">
@@ -30,6 +45,9 @@
        <bool>true</bool>
       </attribute>
       <attribute name="verticalHeaderCascadingSectionResizes">
+       <bool>true</bool>
+      </attribute>
+      <attribute name="verticalHeaderShowSortIndicator" stdset="0">
        <bool>true</bool>
       </attribute>
       <column>
@@ -60,41 +78,13 @@
      </widget>
     </item>
     <item>
-     <widget class="QFrame" name="frame">
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
+     <widget class="QPushButton" name="start_worker_pushButton">
+      <property name="text">
+       <string>Start Worker</string>
       </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+      <property name="checkable">
+       <bool>true</bool>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="topMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <property name="bottomMargin">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QPushButton" name="start_worker_pushButton">
-         <property name="text">
-          <string>Start Worker</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="stop_worker_pushButton">
-         <property name="text">
-          <string>Stop Worker</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
      </widget>
     </item>
     <item>

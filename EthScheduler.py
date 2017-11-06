@@ -14,24 +14,31 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         self.setupUi(self)  # This is defined in AquetiOperationGUI.py file automatically
                             # It sets up layout and widgets that are defined
 
+        self.currentWorkers = 0
+
         # setup signals and slots
         self.actionAdd_Worker.triggered.connect(self.addWorker)
         self.delete_worker_pushButton.clicked.connect(self.deleteWorker)
         self.start_worker_pushButton.clicked.connect(self.startWorker)
-        self.stop_worker_pushButton.clicked.connect(self.stopWorker)
+
 
     def addWorker(self):
         '''
+        add a worker to the interface
         '''
         ip, name, startTime, endTime, address, ok = EthSchedulerDialog.AddWorkerDialog.addWorker()
         if ok != QtGui.QDialog.Accepted:
             return
 
-        print(ip)
-        print(name)
-        print(startTime)
-        print(endTime)
-        print(address)
+
+        self.worker_tableWidget.insertRow(self.currentWorkers)
+        self.worker_tableWidget.setItem(self.currentWorkers, 0, QtGui.QTableWidgetItem(name))
+        self.worker_tableWidget.setItem(self.currentWorkers, 1, QtGui.QTableWidgetItem(ip))
+        self.worker_tableWidget.setItem(self.currentWorkers, 2, QtGui.QTableWidgetItem("IDLE"))
+        self.worker_tableWidget.setItem(self.currentWorkers, 3, QtGui.QTableWidgetItem(startTime + "-" + endTime))
+        self.worker_tableWidget.setItem(self.currentWorkers, 4, QtGui.QTableWidgetItem(address))
+
+
 
     def deleteWorker(self):
         '''
@@ -42,13 +49,85 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
     def startWorker(self):
         '''
         '''
-        return
+        if self. start_worker_pushButton.isChecked():
+            currentRow = self.worker_tableWidget.currentRow()
+
+            addressName = self.worker_tableWidget.item(currentRow, 4).text()+"."+self.worker_tableWidget.item(currentRow, 0).text()
+
+            cmd = ["./ethminer"]
+            cmd.append('--farm-recheck')
+            cmd.append('2000')
+            cmd.append('-G')
+            cmd.append('-S')
+            cmd.append('us1.ethermine.org:4444')
+            cmd.append('-FS')
+            cmd.append('us1.ethermine.org:14444')
+            cmd.append('-O')
+            cmd.append( addressName)
+
+            print(cmd)
 
 
-    def stopWorker(self):
+    def runRemoteProcess(self, ip, cmd):
         '''
+        runs Acos on all the tegras
         '''
-        return
+        runRemoteProcess = subprocess.Popen(["ssh", "mosaic@%s"% ip, cmd], stdout=subprocess.PIPE, shell=False, stderr=subprocess.PIPE)
+        runRemoteProcess.wait()
+
+
+    def toggleAcos(self):
+        '''
+        Turns on and off Acos on all tegras
+        '''
+
+        self.updateStateLabel(WORKING)
+
+        if self.start_camera_pushButton.isChecked():
+            cmd = ['acosd','-R','acosdLog']
+
+            if self.encoder_type_comboBox.currentIndex() == H264_ENCODER:
+                cmd.append('-C')
+                cmd.append('H264')
+                cmd.append('-s')
+                cmd.append('1')
+
+            elif self.encoder_type_comboBox.currentIndex() == JPEG_ENCODER:
+                cmd.append('-C')
+                cmd.append('JPEG')
+                cmd.append('-s')
+                cmd.append('2')
+
+            elif self.encoder_type_comboBox.currentIndex() == H265_ENCODER:
+                cmd.append('-C')
+                cmd.append('H265')
+                cmd.append('-s')
+                cmd.append('1')
+
+            if self.enable_commands_checkBox.isChecked():
+                self.printMessage(QtCore.QString(' '.join(cmd)))
+
+            self.toggleAllAcos(' '.join(cmd),True)
+            acosRunning = True
+        else:
+
+            self.closeAcosd()
+            acosRunning = False
+
+        self.updateStateLabel(IDLE)
+
+
+    def closeAcosd(self):
+        '''
+        terminates Acosd
+        '''
+        if self.acosRunning:
+            self.toggleAcosButtonState(False)
+            cmd = ['pkill', '-2', 'acosd']
+            if self.enable_commands_checkBox.isChecked():
+                self.printMessage(QtCore.QString(' '.join(cmd)))
+
+            self.toggleAllAcos(' '.join(cmd),False)
 
 
 
