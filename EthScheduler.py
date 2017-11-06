@@ -3,6 +3,8 @@ from PyQt4 import QtCore, QtGui
 import sys 
 import EthSchedulerGUI # This file holds MainWindow and all design related things
 import EthSchedulerDialog
+import subprocess
+import os
 
 DEFAULT_MINING_ADDRESS = "A688479f3C579Fb7F57A4833dA48e393de3F7a98"
 
@@ -20,6 +22,7 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         self.actionAdd_Worker.triggered.connect(self.addWorker)
         self.delete_worker_pushButton.clicked.connect(self.deleteWorker)
         self.start_worker_pushButton.clicked.connect(self.startWorker)
+        self.actionQuit.triggered.connect(self.close)
 
 
     def addWorker(self):
@@ -49,8 +52,11 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
     def startWorker(self):
         '''
         '''
+        currentRow = self.worker_tableWidget.currentRow()
+        currentIp = self.worker_tableWidget.item(currentRow, 1).text()
+
         if self. start_worker_pushButton.isChecked():
-            currentRow = self.worker_tableWidget.currentRow()
+            
 
             addressName = self.worker_tableWidget.item(currentRow, 4).text()+"."+self.worker_tableWidget.item(currentRow, 0).text()
 
@@ -66,70 +72,44 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
             cmd.append( addressName)
 
             print(cmd)
+            self.start_worker_pushButton.setText('Stop Worker')
+            self.runRemoteProcess(currentIp, ' '.join(cmd))
+            self.worker_tableWidget.setItem(currentRow, 2, QtGui.QTableWidgetItem('RUNNING'))
+        else:
+            cmd = ["pkill"]
+            cmd.append('-15')
+            cmd.append('ethminer')
+            self.runRemoteProcess(currentIp,' '.join(cmd))
+            self.start_worker_pushButton.setText('Start Worker')
+            self.worker_tableWidget.setItem(currentRow, 2, QtGui.QTableWidgetItem('IDLE'))
 
 
     def runRemoteProcess(self, ip, cmd):
         '''
         runs Acos on all the tegras
         '''
-        runRemoteProcess = subprocess.Popen(["ssh", "mosaic@%s"% ip, cmd], stdout=subprocess.PIPE, shell=False, stderr=subprocess.PIPE)
+        runRemoteProcess = subprocess.Popen(["ssh", "mosaic@%s"% ip, cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         runRemoteProcess.wait()
 
-
-    def toggleAcos(self):
+    def closeEvent(self, event):
         '''
-        Turns on and off Acos on all tegras
+        catches the close event 
         '''
+        reply = QtGui.QMessageBox.question(self, 'Shutdown',
+            "Are you sure you want to quit?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
 
-        self.updateStateLabel(WORKING)
-
-        if self.start_camera_pushButton.isChecked():
-            cmd = ['acosd','-R','acosdLog']
-
-            if self.encoder_type_comboBox.currentIndex() == H264_ENCODER:
-                cmd.append('-C')
-                cmd.append('H264')
-                cmd.append('-s')
-                cmd.append('1')
-
-            elif self.encoder_type_comboBox.currentIndex() == JPEG_ENCODER:
-                cmd.append('-C')
-                cmd.append('JPEG')
-                cmd.append('-s')
-                cmd.append('2')
-
-            elif self.encoder_type_comboBox.currentIndex() == H265_ENCODER:
-                cmd.append('-C')
-                cmd.append('H265')
-                cmd.append('-s')
-                cmd.append('1')
-
-            if self.enable_commands_checkBox.isChecked():
-                self.printMessage(QtCore.QString(' '.join(cmd)))
-
-            self.toggleAllAcos(' '.join(cmd),True)
-            acosRunning = True
+        if reply == QtGui.QMessageBox.Yes:
+            self.shutdown()
         else:
+            event.ignore()
+        
 
-            self.closeAcosd()
-            acosRunning = False
-
-        self.updateStateLabel(IDLE)
-
-
-    def closeAcosd(self):
+    def shutdown(self):
         '''
-        terminates Acosd
+        shuts down the GUI
         '''
-        if self.acosRunning:
-            self.toggleAcosButtonState(False)
-            cmd = ['pkill', '-2', 'acosd']
-            if self.enable_commands_checkBox.isChecked():
-                self.printMessage(QtCore.QString(' '.join(cmd)))
 
-            self.toggleAllAcos(' '.join(cmd),False)
-
-
+        self.close()
 
 
 def main():
