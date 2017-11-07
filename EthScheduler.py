@@ -40,6 +40,7 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
             self.worker_tableWidget.setItem(rowPosition, 4, QtGui.QTableWidgetItem(value['address']))
 
         # start schedules for each item
+        
 
 
     def updateWorkerFile(self):
@@ -112,39 +113,66 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         '''
         '''
         currentRow = self.worker_tableWidget.currentRow()
-        currentIp = self.worker_tableWidget.item(currentRow, 1).text()
+        name = self.worker_tableWidget.item(currentRow, 0).text()
 
         if self.start_worker_pushButton.isChecked():
-            addressName = self.worker_tableWidget.item(currentRow, 4).text()+"."+self.worker_tableWidget.item(currentRow, 0).text()
-            cmd = ["~/.eth/ethminer"]
-            cmd.append('--farm-recheck')
-            cmd.append('2000')
-            cmd.append('-G')
-            cmd.append('-S')
-            cmd.append('us1.ethermine.org:4444')
-            cmd.append('-FS')
-            cmd.append('us1.ethermine.org:14444')
-            cmd.append('-O')
-            cmd.append( str(addressName))
-
-            print(cmd)
-            self.runRemoteProcess(str(currentIp), ' '.join(cmd))
+            self.launchWorker(str(name))
             self.start_worker_pushButton.setText('Stop Worker')
             self.worker_tableWidget.setItem(currentRow, 2, QtGui.QTableWidgetItem('RUNNING'))
         else:
-            cmd = ["pkill"]
-            cmd.append('-15')
-            cmd.append('ethminer')
-            self.runRemoteProcess(str(currentIp),' '.join(cmd))
+            self.stopWorker(str(name))
             self.start_worker_pushButton.setText('Start Worker')
             self.worker_tableWidget.setItem(currentRow, 2, QtGui.QTableWidgetItem('IDLE'))
 
 
-    def runRemoteProcess(self, ip, cmd):
+    def launchWorker(self, name):
+        '''
+        starts the specified worker
+        '''
+        currentWorker = {}
+
+        for key, item in  self.workers.items():
+            if key == name:
+                currentWorker = self.workers[key]
+
+
+        addressName = currentWorker['address']+"."+name
+        cmd = ["~/.eth/ethminer"]
+        cmd.append('--farm-recheck')
+        cmd.append('2000')
+        cmd.append('-G')
+        cmd.append('-S')
+        cmd.append('us1.ethermine.org:4444')
+        cmd.append('-FS')
+        cmd.append('us1.ethermine.org:14444')
+        cmd.append('-O')
+        cmd.append( currentWorker['address'])
+
+        print(cmd)
+        self.runRemoteProcess(currentWorker['ip'],currentWorker['username'], ' '.join(cmd))
+
+    def stopWorker(self, name):
+        '''
+        stops the specified worker
+        '''
+        currentWorker = {}
+
+        for key, item in  self.workers.items():
+            if key == name:
+                currentWorker = self.workers[key]
+
+
+        cmd = ["pkill"]
+        cmd.append('-15')
+        cmd.append('ethminer')
+        self.runRemoteProcess(currentWorker['ip'], currentWorker['username'], ' '.join(cmd))
+
+
+    def runRemoteProcess(self, ip, username, cmd):
         '''
         runs Acos on all the tegras
         '''
-        runRemoteProcess = subprocess.Popen(["ssh", "mosaic@%s"% ip, cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        runRemoteProcess = subprocess.Popen(["ssh", "%s@%s"%(username, ip), cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     def closeEvent(self, event):
         '''
