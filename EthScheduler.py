@@ -39,8 +39,9 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
             self.worker_tableWidget.setItem(rowPosition, 3, QtGui.QTableWidgetItem(value['startTime']))
             self.worker_tableWidget.setItem(rowPosition, 4, QtGui.QTableWidgetItem(value['address']))
 
-        # start schedules for each item
-        
+            # start schedules for each item
+            schedule.every().day.at(value["startTime"]).do(self.launchWorker, value['name'])
+            schedule.every().day.at(value["endTime"]).do(self.stopWorker, value['name'])
 
 
     def updateWorkerFile(self):
@@ -93,6 +94,9 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
 
         #append to the file on disk
         self.updateWorkerFile();
+
+        schedule.every().day.at(value["startTime"]).do(self.launchWorker, value['name'])
+        schedule.every().day.at(value["endTime"]).do(self.stopWorker, value['name'])
 
     def deleteWorker(self):
         '''
