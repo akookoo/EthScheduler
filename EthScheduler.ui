@@ -67,7 +67,7 @@
       </column>
       <column>
        <property name="text">
-        <string>Times</string>
+        <string>Start Time</string>
        </property>
       </column>
       <column>

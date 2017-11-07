@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'EthScheduler.ui'
 #
-# Created by: PyQt4 UI code generator 4.12.1
+# Created by: PyQt4 UI code generator 4.11.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -37,7 +37,7 @@ class Ui_EthScheduler(object):
         self.worker_tableWidget.setTextElideMode(QtCore.Qt.ElideMiddle)
         self.worker_tableWidget.setShowGrid(False)
         self.worker_tableWidget.setObjectName(_fromUtf8("worker_tableWidget"))
-        self.worker_tableWidget.setColumnCount(5)
+        self.worker_tableWidget.setColumnCount(6)
         self.worker_tableWidget.setRowCount(0)
         item = QtGui.QTableWidgetItem()
         self.worker_tableWidget.setHorizontalHeaderItem(0, item)
@@ -49,6 +49,8 @@ class Ui_EthScheduler(object):
         self.worker_tableWidget.setHorizontalHeaderItem(3, item)
         item = QtGui.QTableWidgetItem()
         self.worker_tableWidget.setHorizontalHeaderItem(4, item)
+        item = QtGui.QTableWidgetItem()
+        self.worker_tableWidget.setHorizontalHeaderItem(5, item)
         self.worker_tableWidget.horizontalHeader().setCascadingSectionResizes(True)
         self.worker_tableWidget.horizontalHeader().setSortIndicatorShown(True)
         self.worker_tableWidget.horizontalHeader().setStretchLastSection(True)
@@ -64,7 +66,7 @@ class Ui_EthScheduler(object):
         self.verticalLayout.addWidget(self.delete_worker_pushButton)
         EthScheduler.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(EthScheduler)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 560, 20))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 560, 23))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menuEthScheduler = QtGui.QMenu(self.menubar)
         self.menuEthScheduler.setObjectName(_fromUtf8("menuEthScheduler"))
@@ -96,8 +98,10 @@ class Ui_EthScheduler(object):
         item = self.worker_tableWidget.horizontalHeaderItem(2)
         item.setText(_translate("EthScheduler", "Status", None))
         item = self.worker_tableWidget.horizontalHeaderItem(3)
-        item.setText(_translate("EthScheduler", "Times", None))
+        item.setText(_translate("EthScheduler", "Start Time", None))
         item = self.worker_tableWidget.horizontalHeaderItem(4)
+        item.setText(_translate("EthScheduler", "End Time", None))
+        item = self.worker_tableWidget.horizontalHeaderItem(5)
         item.setText(_translate("EthScheduler", "Address", None))
         self.start_worker_pushButton.setText(_translate("EthScheduler", "Start Worker", None))
         self.delete_worker_pushButton.setText(_translate("EthScheduler", "Delete Worker", None))

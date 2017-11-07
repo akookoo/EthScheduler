@@ -7,6 +7,7 @@ import subprocess
 import os
 import schedule
 import time
+import thread
 
 DEFAULT_MINING_ADDRESS = "0x41B145f770e5FCFd691aCFD9E94aaE19817d52b9"
 DEFAULT_CONFIG_LOCATION = "/home/bradley/.eth/"
@@ -37,11 +38,25 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
             self.worker_tableWidget.setItem(rowPosition, 1, QtGui.QTableWidgetItem(value['ip']))
             self.worker_tableWidget.setItem(rowPosition, 2, QtGui.QTableWidgetItem("IDLE"))
             self.worker_tableWidget.setItem(rowPosition, 3, QtGui.QTableWidgetItem(value['startTime']))
-            self.worker_tableWidget.setItem(rowPosition, 4, QtGui.QTableWidgetItem(value['address']))
+            self.worker_tableWidget.setItem(rowPosition, 4, QtGui.QTableWidgetItem(value['endTime']))
+            self.worker_tableWidget.setItem(rowPosition, 5, QtGui.QTableWidgetItem(value['address']))
 
             # start schedules for each item
             schedule.every().day.at(value["startTime"]).do(self.launchWorker, value['name'])
             schedule.every().day.at(value["endTime"]).do(self.stopWorker, value['name'])
+
+
+        # start the update thread
+        self.updateSchedule()
+
+    def updateSchedule(self):
+
+        def helper(self):
+            while True:
+                schedule.run_pending()
+                time.sleep(1)
+            
+        thread.start_new_thread(helper,(self,))
 
 
     def updateWorkerFile(self):
@@ -79,8 +94,9 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         self.worker_tableWidget.setItem(rowPosition, 0, QtGui.QTableWidgetItem(name))
         self.worker_tableWidget.setItem(rowPosition, 1, QtGui.QTableWidgetItem(ip))
         self.worker_tableWidget.setItem(rowPosition, 2, QtGui.QTableWidgetItem("IDLE"))
-        self.worker_tableWidget.setItem(rowPosition, 3, QtGui.QTableWidgetItem(startTime + "-" + endTime))
-        self.worker_tableWidget.setItem(rowPosition, 4, QtGui.QTableWidgetItem(address))
+        self.worker_tableWidget.setItem(rowPosition, 3, QtGui.QTableWidgetItem(startTime))
+        self.worker_tableWidget.setItem(rowPosition, 4, QtGui.QTableWidgetItem(endTime))
+        self.worker_tableWidget.setItem(rowPosition, 5, QtGui.QTableWidgetItem(address))
 
         worker['username'] = str(username)
         worker['name'] = str(name)
@@ -95,8 +111,8 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         #append to the file on disk
         self.updateWorkerFile();
 
-        schedule.every().day.at(value["startTime"]).do(self.launchWorker, value['name'])
-        schedule.every().day.at(value["endTime"]).do(self.stopWorker, value['name'])
+        schedule.every().day.at(worker["startTime"]).do(self.launchWorker, worker['name'])
+        schedule.every().day.at(worker["endTime"]).do(self.stopWorker, worker['name'])
 
     def deleteWorker(self):
         '''
@@ -134,6 +150,7 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         starts the specified worker
         '''
         currentWorker = {}
+        print("starting: %s"%name)
 
         for key, item in  self.workers.items():
             if key == name:
@@ -160,6 +177,7 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         stops the specified worker
         '''
         currentWorker = {}
+        print("stopping: %s"%name)
 
         for key, item in  self.workers.items():
             if key == name:
