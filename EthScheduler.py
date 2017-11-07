@@ -19,7 +19,6 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         self.setupUi(self)  # This is defined in AquetiOperationGUI.py file automatically
                             # It sets up layout and widgets that are defined
 
-        self.currentWorkers = 0
         self.workers = {}
 
         # setup signals and slots
@@ -32,13 +31,14 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         self.readWorkerFile()
 
         for key, value in sorted(self.workers.items()):
-            self.worker_tableWidget.insertRow(self.currentWorkers)
-            self.worker_tableWidget.setItem(self.currentWorkers, 0, QtGui.QTableWidgetItem(value['name']))
-            self.worker_tableWidget.setItem(self.currentWorkers, 1, QtGui.QTableWidgetItem(value['ip']))
-            self.worker_tableWidget.setItem(self.currentWorkers, 2, QtGui.QTableWidgetItem("IDLE"))
-            self.worker_tableWidget.setItem(self.currentWorkers, 3, QtGui.QTableWidgetItem(value['startTime']))
-            self.worker_tableWidget.setItem(self.currentWorkers, 4, QtGui.QTableWidgetItem(value['address']))
-            self.currentWorkers =self.currentWorkers+1
+            rowPosition = self.worker_tableWidget.rowCount()
+            self.worker_tableWidget.insertRow(rowPosition)
+            self.worker_tableWidget.setItem(rowPosition, 0, QtGui.QTableWidgetItem(value['name']))
+            self.worker_tableWidget.setItem(rowPosition, 1, QtGui.QTableWidgetItem(value['ip']))
+            self.worker_tableWidget.setItem(rowPosition, 2, QtGui.QTableWidgetItem("IDLE"))
+            self.worker_tableWidget.setItem(rowPosition, 3, QtGui.QTableWidgetItem(value['startTime']))
+            self.worker_tableWidget.setItem(rowPosition, 4, QtGui.QTableWidgetItem(value['address']))
+
         # start schedules for each item
 
 
@@ -72,12 +72,13 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
             return
 
         # add worker to the next line in the table
-        self.worker_tableWidget.insertRow(self.currentWorkers)
-        self.worker_tableWidget.setItem(self.currentWorkers, 0, QtGui.QTableWidgetItem(name))
-        self.worker_tableWidget.setItem(self.currentWorkers, 1, QtGui.QTableWidgetItem(ip))
-        self.worker_tableWidget.setItem(self.currentWorkers, 2, QtGui.QTableWidgetItem("IDLE"))
-        self.worker_tableWidget.setItem(self.currentWorkers, 3, QtGui.QTableWidgetItem(startTime + "-" + endTime))
-        self.worker_tableWidget.setItem(self.currentWorkers, 4, QtGui.QTableWidgetItem(address))
+        rowPosition = self.worker_tableWidget.rowCount()
+        self.worker_tableWidget.insertRow(rowPosition)
+        self.worker_tableWidget.setItem(rowPosition, 0, QtGui.QTableWidgetItem(name))
+        self.worker_tableWidget.setItem(rowPosition, 1, QtGui.QTableWidgetItem(ip))
+        self.worker_tableWidget.setItem(rowPosition, 2, QtGui.QTableWidgetItem("IDLE"))
+        self.worker_tableWidget.setItem(rowPosition, 3, QtGui.QTableWidgetItem(startTime + "-" + endTime))
+        self.worker_tableWidget.setItem(rowPosition, 4, QtGui.QTableWidgetItem(address))
 
         worker['username'] = str(username)
         worker['name'] = str(name)
@@ -87,7 +88,7 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         worker['address'] = str(address)
 
         self.workers[str(name)] = worker
-        self.currentWorkers =self.currentWorkers+1
+
 
         #append to the file on disk
         self.updateWorkerFile();
@@ -104,7 +105,6 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
                 del self.workers[key]
 
         self.updateWorkerFile();
-
         self.worker_tableWidget.removeRow(currentRow)
 
 
