@@ -7,7 +7,7 @@ import subprocess
 import os
 import schedule
 import time
-import thread
+import _thread
 
 DEFAULT_MINING_ADDRESS = "0x41B145f770e5FCFd691aCFD9E94aaE19817d52b9"
 DEFAULT_CONFIG_LOCATION = "/home/bradley/.eth/"
@@ -56,13 +56,14 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
                 schedule.run_pending()
                 time.sleep(1)
             
-        thread.start_new_thread(helper,(self,))
+        _thread.start_new_thread(helper,(self,))
 
 
     def updateWorkerFile(self):
         '''
         updates a file on disk containing workers
         '''
+
         target = open(DEFAULT_CONFIG_LOCATION+'workers.txt', 'w')
         target.write(str(self.workers))
 
@@ -167,7 +168,7 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         cmd.append('-FS')
         cmd.append('us1.ethermine.org:14444')
         cmd.append('-O')
-        cmd.append( currentWorker['address'])
+        cmd.append( addressName)
 
         print(cmd)
         self.runRemoteProcess(currentWorker['ip'],currentWorker['username'], ' '.join(cmd))
