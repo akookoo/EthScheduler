@@ -47,7 +47,7 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
 
         # start the update thread
         self.updateSchedule()
-        
+
         # setup signals and slots
         self.actionAdd_Worker.triggered.connect(self.addWorker)
         self.add_worker_pushButton.clicked.connect(self.addWorker)
@@ -187,9 +187,9 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         cmd.append('-FS')
         cmd.append('us1.ethermine.org:14444')
         cmd.append('-O')
-        cmd.append( addressName)
+        cmd.append( str(addressName))
 
-        print(cmd)
+        print(' '.join(cmd))
         self.runRemoteProcess(currentWorker['ip'],currentWorker['username'], ' '.join(cmd))
         currentWorker['status'] = 'WORKING'
 
