@@ -201,6 +201,7 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         cmd.append('--farm-recheck')
         cmd.append('2000')
         cmd.append('-G')
+        cmd.append('-RH')
         cmd.append('-S')
         cmd.append('us1.ethermine.org:4444')
         cmd.append('-FS')
