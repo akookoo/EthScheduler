@@ -199,7 +199,11 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         addressName = currentWorker['address']+"."+name
         cmd = ["~/.eth/ethminer"]
         cmd.append('--farm-recheck')
-        cmd.append('2000')
+        cmd.append('400')
+        cmd.append('--cl-global-work')
+        cmd.append('16384')
+        cmd.append('--cl-local-work')
+        cmd.append('1024')
         cmd.append('-G')
         cmd.append('-RH')
         cmd.append('-S')
