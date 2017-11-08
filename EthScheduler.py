@@ -70,12 +70,31 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
     def tableCellClicked(self, row, column):
         '''
         '''
-        print(row)
+        currentWorker = {}
+        currentName = self.worker_tableWidget.item(row, 0).text()
+        for key, item in  self.workers.items():
+            if key == currentName:
+                currentWorker =  self.workers[key]
+
+        self.status_label.setText(currentWorker['status'])
 
     def tableCellChanged(self, row, column):
         '''
         '''
         print(row)
+        # currentWorker = {}
+        # currentName = self.worker_tableWidget.item(row, 0).text()
+
+        # for key, item in  self.workers.items():
+        #     if key == currentName:
+        #         currentWorker =  self.workers[key]
+
+
+        # self.updateWorkerFile();
+
+        # schedule.every().day.at(currentWorker["startTime"]).do(self.launchWorker, currentWorker['name'])
+        # schedule.every().day.at(currentWorker["endTime"]).do(self.stopWorker, currentWorker['name'])
+        # print("Scheduling "+currentWorker['name'] + " to start at: "+ currentWorker["startTime"]+ " and end at: "+currentWorker["endTime"])
 
 
 
