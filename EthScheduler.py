@@ -41,8 +41,8 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
             self.worker_tableWidget.setItem(rowPosition, 4, QtGui.QTableWidgetItem(value['address']))
 
             # start schedules for each item
-            schedule.every().day.at(value["startTime"]).do(self.launchWorker, value['name'])
-            schedule.every().day.at(value["endTime"]).do(self.stopWorker, value['name'])
+            schedule.every().day.at(value["startTime"]).do(self.launchWorker, value['name']).tag('daily-tasks', value['name'])
+            schedule.every().day.at(value["endTime"]).do(self.stopWorker, value['name']).tag('daily-tasks', value['name'])
             print("Scheduling "+value['name'] + " to start at: "+ value["startTime"]+ " and end at: "+value["endTime"])
 
         # start the update thread
@@ -81,20 +81,28 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
     def tableCellChanged(self, row, column):
         '''
         '''
-        print(row)
-        # currentWorker = {}
-        # currentName = self.worker_tableWidget.item(row, 0).text()
+        currentName = self.worker_tableWidget.item(row, 0).text()
 
-        # for key, item in  self.workers.items():
-        #     if key == currentName:
-        #         currentWorker =  self.workers[key]
+        for key, item in  self.workers.items():
+            if key == currentName:
 
+                if(column == 1):
+                    self.workers[key]['ip'] = self.worker_tableWidget.item(row, column).text()
+                elif(column == 2):
+                    self.workers[key]['startTime'] = self.worker_tableWidget.item(row, column).text()
+                elif(column == 3):
+                    self.workers[key]['endTime'] = self.worker_tableWidget.item(row, column).text()
+                elif(column == 4):
+                    self.workers[key]['address'] = self.worker_tableWidget.item(row, column).text()
 
-        # self.updateWorkerFile();
+                self.updateWorkerFile();
 
-        # schedule.every().day.at(currentWorker["startTime"]).do(self.launchWorker, currentWorker['name'])
-        # schedule.every().day.at(currentWorker["endTime"]).do(self.stopWorker, currentWorker['name'])
-        # print("Scheduling "+currentWorker['name'] + " to start at: "+ currentWorker["startTime"]+ " and end at: "+currentWorker["endTime"])
+                # clear name tasks
+                schedule.clear(self.workers[key]["name"])
+
+                schedule.every().day.at(self.workers[key]["startTime"]).do(self.launchWorker, self.workers[key]['name'])
+                schedule.every().day.at(self.workers[key]["endTime"]).do(self.stopWorker, self.workers[key]['name'])
+                print("Scheduling "+self.workers[key]['name'] + " to start at: "+ self.workers[key]["startTime"]+ " and end at: "+self.workers[key]["endTime"])
 
 
 
@@ -151,8 +159,8 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         #append to the file on disk
         self.updateWorkerFile();
 
-        schedule.every().day.at(worker["startTime"]).do(self.launchWorker, worker['name'])
-        schedule.every().day.at(worker["endTime"]).do(self.stopWorker, worker['name'])
+        schedule.every().day.at(worker["startTime"]).do(self.launchWorker, worker['name']).tag('daily-tasks', value['name'])
+        schedule.every().day.at(worker["endTime"]).do(self.stopWorker, worker['name']).tag('daily-tasks', value['name'])
         print("Scheduling "+worker['name'] + " to start at: "+ worker["startTime"]+ " and end at: "+worker["endTime"])
 
     def deleteWorker(self):
