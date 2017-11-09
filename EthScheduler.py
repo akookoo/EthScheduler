@@ -35,12 +35,9 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         for key, value in sorted(self.workers.items()):
             rowPosition = self.worker_tableWidget.rowCount()
             self.worker_tableWidget.insertRow(rowPosition)
-            self.worker_tableWidget.setItem(rowPosition, 0, QtGui.QTableWidgetItem(value['name']))
-            self.worker_tableWidget.setItem(rowPosition, 1, QtGui.QTableWidgetItem(value['ip']))
-            self.worker_tableWidget.setItem(rowPosition, 2, QtGui.QTableWidgetItem(value['startTime']))
-            self.worker_tableWidget.setItem(rowPosition, 3, QtGui.QTableWidgetItem(value['endTime']))
-            self.worker_tableWidget.setItem(rowPosition, 4, QtGui.QTableWidgetItem(value['address']))
 
+            self.addItemToTable(rowPosition, value['name'], value['ip'], value['startTime'], value['endTime'], value['address'])
+            
             # start schedules for each item
             self.scheduleWorker(value['name'],value['startTime'],value['endTime'])
 
@@ -54,6 +51,18 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         self.worker_tableWidget.cellChanged.connect(self.tableCellChanged)
 
         self.scheduler.start()
+
+
+    def addItemToTable(self, row, name, ip, startTime, endTime, address):
+        '''
+        adds an item to the table
+        '''
+        self.worker_tableWidget.setItem(row, 0, QtGui.QTableWidgetItem(name))
+        self.worker_tableWidget.setItem(row, 1, QtGui.QTableWidgetItem(ip))
+        self.worker_tableWidget.setItem(row, 2, QtGui.QTableWidgetItem(startTime))
+        self.worker_tableWidget.setItem(row, 3, QtGui.QTableWidgetItem(endTime))
+        self.worker_tableWidget.setItem(row, 4, QtGui.QTableWidgetItem(address))
+        self.worker_tableWidget.item(row, 0).setFlags(QtCore.Qt.ItemIsEnabled)
 
 
     def scheduleWorker(self, name, startTime, endTime):
@@ -153,11 +162,7 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         # add worker to the next line in the table
         rowPosition = self.worker_tableWidget.rowCount()
         self.worker_tableWidget.insertRow(rowPosition)
-        self.worker_tableWidget.setItem(rowPosition, 0, QtGui.QTableWidgetItem(name))
-        self.worker_tableWidget.setItem(rowPosition, 1, QtGui.QTableWidgetItem(ip))
-        self.worker_tableWidget.setItem(rowPosition, 2, QtGui.QTableWidgetItem(startTime))
-        self.worker_tableWidget.setItem(rowPosition, 3, QtGui.QTableWidgetItem(endTime))
-        self.worker_tableWidget.setItem(rowPosition, 4, QtGui.QTableWidgetItem(address))
+        self.addItemToTable(rowPosition, name, ip, startTime, endTime, address)
 
         worker['username'] = str(username)
         worker['name'] = str(name)
