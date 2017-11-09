@@ -1,4 +1,4 @@
-from PyQt4 import QtCore, QtGui
+
 
 import sys 
 import EthSchedulerGUI # This file holds MainWindow and all design related things
@@ -8,6 +8,7 @@ import os
 import time
 from datetime import datetime
 from apscheduler.schedulers.qt import QtScheduler
+from PyQt4 import QtCore, QtGui
 
 DEFAULT_MINING_ADDRESS = "0x41B145f770e5FCFd691aCFD9E94aaE19817d52b9"
 DEFAULT_CONFIG_LOCATION = "/home/bradley/.eth/"
@@ -63,6 +64,11 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         endTimeList = endTime.split(":")
 
         self.scheduler.add_job(self.launchWorker,  'cron', [name],id=name+'start', hour=startTimeList[0], minute=startTimeList[1],replace_existing=True)
+
+        # temporary hack for killing at 00:00
+        self.scheduler.add_job(self.stopWorker,  'cron', [name],id=name+'stopHack', hour='23', minute='58',replace_existing=True)
+        self.scheduler.add_job(self.launchWorker,  'cron', [name],id=name+'startHack', hour='00', minute='02',replace_existing=True)
+
         self.scheduler.add_job(self.stopWorker,  'cron', [name],id=name+'stop', hour=endTimeList[0], minute=endTimeList[1],replace_existing=True)
         print("Scheduling "+name + " to start at: "+ startTime+ " and end at: "+endTime)
 
@@ -73,6 +79,8 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         '''
         self.scheduler.remove_job(name+'start')
         self.scheduler.remove_job(name+'stop')
+        self.scheduler.remove_job(name+'startHack')
+        self.scheduler.remove_job(name+'stopHack')
 
 
     def tableCellClicked(self, row, column):
@@ -95,13 +103,13 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
             if key == currentName:
 
                 if(column == 1):
-                    self.workers[key]['ip'] = self.worker_tableWidget.item(row, column).text()
+                    self.workers[key]['ip'] = str(self.worker_tableWidget.item(row, column).text())
                 elif(column == 2):
-                    self.workers[key]['startTime'] = self.worker_tableWidget.item(row, column).text()
+                    self.workers[key]['startTime'] = str(self.worker_tableWidget.item(row, column).text())
                 elif(column == 3):
-                    self.workers[key]['endTime'] = self.worker_tableWidget.item(row, column).text()
+                    self.workers[key]['endTime'] = str(self.worker_tableWidget.item(row, column).text())
                 elif(column == 4):
-                    self.workers[key]['address'] = self.worker_tableWidget.item(row, column).text()
+                    self.workers[key]['address'] = str(self.worker_tableWidget.item(row, column).text())
 
                 self.updateWorkerFile();
 
