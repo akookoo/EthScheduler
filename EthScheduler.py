@@ -219,7 +219,7 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         '''
         checks the system for running ethminer
         '''
-        CHECK = "ps -Af | grep ethminer"
+        CHECK = "ps cax | grep ethminer"
 
         currentWorker = {}
         for key, item in  self.workers.items():
@@ -248,7 +248,7 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
             print("Unable to detect: "+ name+" Restarting: "+str(datetime.now().time()))
             self.launchWorker(name)
         else:
-            print(name+" was found.")
+            print(name+" was found: "+str(datetime.now().time()))
 
 
     def launchWorker(self, name):
