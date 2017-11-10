@@ -72,13 +72,16 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         startTimeList = startTime.split(":")
         endTimeList = endTime.split(":")
 
+        currentTime = datetime.now()
+        startPulse = currentTime.replace(hour=int(startTimeList[0] ),minute=int(startTimeList[1]))
+        endPulse = currentTime.replace(hour=int(endTimeList[0]), minute=int(endTimeList[1]) )
+
+        print ("startPulse:"+str(startPulse))
+        print ("endPulse:"+str(endPulse))
+
         self.scheduler.add_job(self.launchWorker,  'cron', [name],id=name+'start', hour=startTimeList[0], minute=startTimeList[1],replace_existing=True)
-
-        # temporary hack for killing at 00:00
-        self.scheduler.add_job(self.stopWorker,  'cron', [name],id=name+'stopHack', hour='23', minute='58',replace_existing=True)
-        self.scheduler.add_job(self.launchWorker,  'cron', [name],id=name+'startHack', hour='00', minute='02',replace_existing=True)
-
         self.scheduler.add_job(self.stopWorker,  'cron', [name],id=name+'stop', hour=endTimeList[0], minute=endTimeList[1],replace_existing=True)
+        self.scheduler.add_job(self.workerPulse, 'cron', [name],id=name+'check', second=30, start_date=startPulse,end_date=endPulse,replace_existing=True)
         print("Scheduling "+name + " to start at: "+ startTime+ " and end at: "+endTime)
 
 
@@ -88,8 +91,7 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         '''
         self.scheduler.remove_job(name+'start')
         self.scheduler.remove_job(name+'stop')
-        self.scheduler.remove_job(name+'startHack')
-        self.scheduler.remove_job(name+'stopHack')
+        self.scheduler.remove_job(name+'check')
 
 
     def tableCellClicked(self, row, column):
@@ -213,6 +215,42 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
             self.start_worker_pushButton.setText('Start Worker')
 
 
+    def checkWorker(self, name):
+        '''
+        checks the system for running ethminer
+        '''
+        CHECK = "ps -Af | grep ethminer"
+
+        currentWorker = {}
+        for key, item in  self.workers.items():
+            if key == name:
+                currentWorker = self.workers[key]
+
+        checkProcesses = subprocess.Popen(["ssh", "%s@%s"% (currentWorker['username'],currentWorker['ip']), CHECK], stdout=subprocess.PIPE, shell=False, stderr=subprocess.PIPE)
+        checkStdout = checkProcesses.stdout.readlines()
+
+        ethminer = "ethminer"
+        for process in checkStdout[:]:
+
+            if ethminer in process[:]:
+                return True
+
+        return False
+    
+
+    def workerPulse(self, name):
+        '''
+        checks worker and restarts if not found
+        '''
+        rc = self.checkWorker(name)
+        
+        if not rc:
+            print("Unable to detect: "+ name+" Restarting: "+str(datetime.now().time()))
+            self.launchWorker(name)
+        else:
+            print(name+" was found.")
+
+
     def launchWorker(self, name):
         '''
         starts the specified worker
@@ -240,7 +278,7 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         cmd.append('-O')
         cmd.append( str(addressName))
 
-        print(' '.join(cmd))
+        # print(' '.join(cmd))
         self.runRemoteProcess(currentWorker['ip'],currentWorker['username'], ' '.join(cmd))
         currentWorker['status'] = 'WORKING'
 
