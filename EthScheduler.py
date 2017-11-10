@@ -325,6 +325,8 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         shuts down the GUI
         '''
         # stop all workers?
+        for key, item in  self.workers.items():
+            self.stopWorker(self.workers[key])
 
         self.close()
 
