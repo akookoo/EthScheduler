@@ -74,7 +74,7 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
 
         currentTime = datetime.now()
         startPulse = currentTime.replace(hour=int(startTimeList[0] ),minute=int(startTimeList[1]))
-        endPulse = currentTime.replace(hour=int(endTimeList[0]), minute=int(endTimeList[1]) )
+        endPulse = currentTime.replace(hour=int(endTimeList[0]), minute=int(endTimeList[1]) -1 )
 
         print ("startPulse:"+str(startPulse))
         print ("endPulse:"+str(endPulse))
@@ -277,6 +277,7 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         cmd.append('us1.ethermine.org:14444')
         cmd.append('-O')
         cmd.append( str(addressName))
+        cmd.extend(['>>', '~/.eth/log.txt', '2>&1'])
 
         # print(' '.join(cmd))
         self.runRemoteProcess(currentWorker['ip'],currentWorker['username'], ' '.join(cmd))
@@ -305,7 +306,7 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         '''
         runs Acos on all the tegras
         '''
-        runRemoteProcess = subprocess.Popen(["ssh", "%s@%s"%(username, ip), cmd], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        runRemoteProcess = subprocess.Popen(["ssh", "%s@%s"%(username, ip), cmd])
 
     def closeEvent(self, event):
         '''
@@ -326,7 +327,7 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         '''
         # stop all workers?
         for key, item in  self.workers.items():
-            self.stopWorker(self.workers[key])
+            self.stopWorker(self.workers[key]['name'])
 
         self.close()
 
