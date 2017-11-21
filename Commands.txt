@@ -1,0 +1,2 @@
+./ccminer -a lyra2v2 -o stratum+tcp://p2pool.vtc.marshone.com:9171 -u VwjwzkJuiQZD9NUvDEMy1TXrNeFCAhc424 -p x --diff 128
+
