@@ -77,9 +77,9 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
 
         endTimePulse = int(endTimeList[1]) -1
         if endTimePulse > 59:
-            endTimePulse = 59
-        elif endTimePulse < 1:
             endTimePulse = 1
+        elif endTimePulse < 1:
+            endTimePulse = 59
         endPulse = currentTime.replace(hour=int(endTimeList[0]), minute=endTimePulse )
 
         print ("startPulse:"+str(startPulse))

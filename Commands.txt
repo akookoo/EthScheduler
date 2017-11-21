@@ -1,2 +1,10 @@
 ./ccminer -a lyra2v2 -o stratum+tcp://p2pool.vtc.marshone.com:9171 -u VwjwzkJuiQZD9NUvDEMy1TXrNeFCAhc424 -p x --diff 128
+
 ethminer --farm-recheck 400 --cl-global-work 16384 -G -RH -S us1.ethermine.org:4444 -FS us1.ethermine.org:14444 -O 0x41B145f770e5FCFd691aCFD9E94aaE19817d52b9.home
+
+minerd -a cryptonight -o stratum+tcp://mine.moneropool.com:3333 -u 46txnUHtjgb9Sf6GZUExYBS2T9bRxGgR4dGMXV9951VtRKPLGeQx1ZeHpEdFxEFvozNfoY7Hci7d94CaCFSPoNeE29MWEnT -p x
+
+
+
+
+huge criminal algebra vixen deodorant point hatchet vivid zodiac nerves zombie makeup hunter eagle unfit jobs august when muddy vocal island shipped school sewage hunter
