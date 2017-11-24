@@ -1,5 +1,6 @@
+#!/usr/bin/env python3
 
-
+from PyQt5 import QtGui, QtCore, QtWidgets
 import sys 
 import EthSchedulerGUI # This file holds MainWindow and all design related things
 import EthSchedulerDialog
@@ -8,12 +9,13 @@ import os
 import time
 from datetime import datetime
 from apscheduler.schedulers.qt import QtScheduler
-from PyQt4 import QtCore, QtGui
+
+
 
 DEFAULT_MINING_ADDRESS = "0x41B145f770e5FCFd691aCFD9E94aaE19817d52b9"
 DEFAULT_CONFIG_LOCATION = "/home/bradley/.eth/"
 
-class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
+class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
 
     def __init__(self):
         # access variables, methods etc in the AquetiOperationGUI.py file
@@ -23,6 +25,10 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         print("Starting EthScheduler: current time: "+str(datetime.now().time()))
         print("-----------------------------------------------")
         print(" ")
+
+        # create default save location if it doesn't exist
+        if not os.path.exists(DEFAULT_CONFIG_LOCATION):
+            os.makedirs(DEFAULT_CONFIG_LOCATION)
 
         self.workers = {}
         self.scheduler = QtScheduler()
@@ -57,11 +63,11 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         '''
         adds an item to the table
         '''
-        self.worker_tableWidget.setItem(row, 0, QtGui.QTableWidgetItem(name))
-        self.worker_tableWidget.setItem(row, 1, QtGui.QTableWidgetItem(ip))
-        self.worker_tableWidget.setItem(row, 2, QtGui.QTableWidgetItem(startTime))
-        self.worker_tableWidget.setItem(row, 3, QtGui.QTableWidgetItem(endTime))
-        self.worker_tableWidget.setItem(row, 4, QtGui.QTableWidgetItem(address))
+        self.worker_tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(name))
+        self.worker_tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(ip))
+        self.worker_tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(startTime))
+        self.worker_tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(endTime))
+        self.worker_tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(address))
         self.worker_tableWidget.item(row, 0).setFlags(QtCore.Qt.ItemIsEnabled)
 
 
@@ -164,7 +170,7 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
 
 
         username, ip, name, startTime, endTime, address, ok = EthSchedulerDialog.AddWorkerDialog.addWorker()
-        if ok != QtGui.QDialog.Accepted:
+        if ok != QtWidgets.QDialog.Accepted:
             return
 
         # add worker to the next line in the table
@@ -318,10 +324,10 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         '''
         catches the close event 
         '''
-        reply = QtGui.QMessageBox.question(self, 'Shutdown',
-            "Are you sure you want to quit?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        reply = QtWidgets.QMessageBox.question(self, 'Shutdown',
+            "Are you sure you want to quit?", QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
 
-        if reply == QtGui.QMessageBox.Yes:
+        if reply == QtWidgets.QMessageBox.Yes:
             self.shutdown()
         else:
             event.ignore()
@@ -339,7 +345,7 @@ class EthScheduler(QtGui.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
 
 
 def main():
-    app = QtGui.QApplication(sys.argv)  # A new instance of QApplication
+    app = QtWidgets.QApplication(sys.argv)  # A new instance of QApplication
     form = EthScheduler()                        # We set the form to be our App
     form.show()                         # Show the form
     app.exec_()                         # and execute the app

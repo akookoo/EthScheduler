@@ -7,3 +7,9 @@
 '
 python EthScheduler.py
 '
+
+
+### Update the UI file
+'
+ pyuic5 -o EthSchedulerGUI.py EthScheduler.ui
+'
