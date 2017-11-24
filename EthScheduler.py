@@ -9,11 +9,8 @@ import os
 import time
 from datetime import datetime
 from apscheduler.schedulers.qt import QtScheduler
+import settings
 
-
-
-DEFAULT_MINING_ADDRESS = "0x41B145f770e5FCFd691aCFD9E94aaE19817d52b9"
-DEFAULT_CONFIG_LOCATION = "/home/bradley/.eth/"
 
 class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
 
@@ -27,25 +24,25 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         print(" ")
 
         # create default save location if it doesn't exist
-        if not os.path.exists(DEFAULT_CONFIG_LOCATION):
-            os.makedirs(DEFAULT_CONFIG_LOCATION)
+        if not os.path.exists(settings.DEFAULT_CONFIG_LOCATION):
+            os.makedirs(settings.DEFAULT_CONFIG_LOCATION)
 
         self.workers = {}
         self.scheduler = QtScheduler()
         
-
-
         # fill table from file on disk
         self.readWorkerFile()
 
         for key, value in sorted(self.workers.items()):
-            rowPosition = self.worker_tableWidget.rowCount()
-            self.worker_tableWidget.insertRow(rowPosition)
 
-            self.addItemToTable(rowPosition, value['name'], value['ip'], value['startTime'], value['endTime'], value['address'])
+
+            # add the item to the table
+            self.addItemToTable( value['name'], value['ip'], value['address'])
             
             # start schedules for each item
-            self.scheduleWorker(value['name'],value['startTime'],value['endTime'])
+            for key, time in sorted(value['times'].items()):
+                self.scheduleWorker(value['name'],time['startTime'],time['endTime'], time['mode'], time['day'])
+                self.addItemToTimeTable(time['startTime'], time['endTime'], time['mode'])
 
         # setup signals and slots
         self.actionAdd_Worker.triggered.connect(self.addWorker)
@@ -55,23 +52,41 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         self.actionQuit.triggered.connect(self.close)
         self.worker_tableWidget.cellClicked.connect(self.tableCellClicked)
         self.worker_tableWidget.cellChanged.connect(self.tableCellChanged)
+        self.add_time_pushButton.clicked.connect(self.addTime)
+        self.remove_time_pushButton.clicked.connect(self.removeTime)
 
         self.scheduler.start()
 
 
-    def addItemToTable(self, row, name, ip, startTime, endTime, address):
+    def addItemToTimeTable(self, startTime, endTime, mode ):
+        '''
+        add an item to the time table
+        '''
+        row = self.times_tableWidget.rowCount()
+        self.times_tableWidget.insertRow(row)
+
+        self.times_tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(startTime))
+        self.times_tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(endTime))
+        self.times_tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(mode))
+
+        self.times_tableWidget.setCurrentCell(row,0)
+
+    def addItemToTable(self, name, ip, address):
         '''
         adds an item to the table
         '''
+        row = self.worker_tableWidget.rowCount()
+        self.worker_tableWidget.insertRow(row)
+
         self.worker_tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(name))
         self.worker_tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(ip))
-        self.worker_tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(startTime))
-        self.worker_tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(endTime))
-        self.worker_tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(address))
+        self.worker_tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(address))
         self.worker_tableWidget.item(row, 0).setFlags(QtCore.Qt.ItemIsEnabled)
 
+        self.worker_tableWidget.setCurrentCell(row,0)
 
-    def scheduleWorker(self, name, startTime, endTime):
+
+    def scheduleWorker(self, name, startTime, endTime, mode, day):
         '''
         schedules a worker
         '''
@@ -88,13 +103,26 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
             endTimePulse = 59
         endPulse = currentTime.replace(hour=int(endTimeList[0]), minute=endTimePulse )
 
-        print ("startPulse:"+str(startPulse))
-        print ("endPulse:"+str(endPulse))
+        # print ("startPulse:"+str(startPulse))
+        # print ("endPulse:"+str(endPulse))
 
-        self.scheduler.add_job(self.launchWorker,  'cron', [name],id=name+'start', hour=startTimeList[0], minute=startTimeList[1],replace_existing=True)
-        self.scheduler.add_job(self.stopWorker,  'cron', [name],id=name+'stop', hour=endTimeList[0], minute=endTimeList[1],replace_existing=True)
-        self.scheduler.add_job(self.workerPulse, 'cron', [name],id=name+'check', second=30, start_date=startPulse,end_date=endPulse,replace_existing=True)
-        print("Scheduling "+name + " to start at: "+ startTime+ " and end at: "+endTime)
+        if mode == settings.SCHEDULE_DAILY:
+            self.scheduler.add_job(self.launchWorker,  'cron', [name],id=name+'start',hour=startTimeList[0], minute=startTimeList[1],replace_existing=True)
+            self.scheduler.add_job(self.stopWorker,  'cron', [name],id=name+'stop',hour=endTimeList[0], minute=endTimeList[1],replace_existing=True)
+            self.scheduler.add_job(self.workerPulse, 'cron', [name],id=name+'check', second=30, start_date=startPulse,end_date=endPulse,replace_existing=True)
+            print("Scheduling "+name + " to start at: "+ startTime+ " and end at: "+endTime+ "everyday")
+        elif mode == settings.SCHEDULE_WEEKLY:
+            self.scheduler.add_job(self.launchWorker,  'cron', [name],id=name+'start',day=day, hour=startTimeList[0], minute=startTimeList[1],replace_existing=True)
+            self.scheduler.add_job(self.stopWorker,  'cron', [name],id=name+'stop',day=day, hour=endTimeList[0], minute=endTimeList[1],replace_existing=True)
+            self.scheduler.add_job(self.workerPulse, 'cron', [name],id=name+'check', second=30, start_date=startPulse,end_date=endPulse,replace_existing=True)
+            print("Scheduling "+name + " to start at: "+ startTime+ " and end at: "+endTime+ " on "+ "saturday")
+        elif mode == settings.SCHEDULE_ONCE:
+            self.scheduler.add_job(self.launchWorker, 'date',[name],id=name+'start', run_date=datetime(2009, 11, 6, 16, 30, 5))
+            self.scheduler.add_job(self.stopWorker, 'date',[name],id=name+'stop', run_date=datetime(2009, 11, 6, 16, 30, 5))
+            # self.scheduler.add_job(self.workerPulse, 'cron', [name],id=name+'check', second=30, start_date=startPulse,end_date=endPulse,replace_existing=True)
+            print("Scheduling "+name + " to start at: "+ startTime+ " and end at: "+endTime)
+
+
 
 
     def removeWorkerSchedule(self, name):
@@ -108,6 +136,7 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
 
     def tableCellClicked(self, row, column):
         '''
+        triggered when a table cell gets clicked
         '''
         currentWorker = {}
         currentName = self.worker_tableWidget.item(row, 0).text()
@@ -119,6 +148,7 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
 
     def tableCellChanged(self, row, column):
         '''
+        triggered when a table cell is changed
         '''
         currentName = self.worker_tableWidget.item(row, 0).text()
 
@@ -148,7 +178,7 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         updates a file on disk containing workers
         '''
 
-        target = open(DEFAULT_CONFIG_LOCATION+'workers.txt', 'w')
+        target = open(settings.DEFAULT_CONFIG_LOCATION+'workers.txt', 'w')
         target.write(str(self.workers))
 
 
@@ -156,10 +186,56 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         '''
         read the worker file into memory
         '''
-        if os.path.isfile(DEFAULT_CONFIG_LOCATION+'workers.txt'):
-            with open(DEFAULT_CONFIG_LOCATION+'workers.txt', 'r') as f:
+        if os.path.isfile(settings.DEFAULT_CONFIG_LOCATION+'workers.txt'):
+            with open(settings.DEFAULT_CONFIG_LOCATION+'workers.txt', 'r') as f:
                 s = f.read()
                 self.workers = eval(s)
+
+
+    def addTime(self):
+        '''
+        add worker time
+        '''
+        #append to the file on disk
+
+        startTime, endTime, mode, day, ok = EthSchedulerDialog.AddTimeDialog.addTime(self)
+        if ok != QtWidgets.QDialog.Accepted:
+            return
+
+        self.addItemToTimeTable( startTime, endTime, mode)
+
+        currentRow = self.worker_tableWidget.currentRow()
+        currentName = self.worker_tableWidget.item(currentRow, 0).text()
+
+        time = {}
+
+        time['startTime'] = str(startTime)
+        time['endTime'] = str(endTime)
+        time['mode'] = str(mode)
+        time['day'] = str(day)
+
+
+        self.workers[currentName]['times'][str(startTime)] = time
+        self.updateWorkerFile();
+        self.scheduleWorker(currentName,time['startTime'],time['endTime'], time['mode'], time['day'])
+
+    def removeTime(self):
+        '''
+        remove worker time
+        '''
+        currentRow = self.worker_tableWidget.currentRow()
+        currentName = self.worker_tableWidget.item(currentRow, 0).text()
+
+        currentTimeRow = self.worker_tableWidget.currentRow()
+        currentTimeName = self.worker_tableWidget.item(currentRow, 0).text()
+
+        for key, item in self.workers.items():
+            if key == currentName:
+                del self.workers[key]['times'][currentTimeName]
+
+        self.updateWorkerFile();
+        self.times_tableWidget.removeRow(currentTimeRow)
+        self.removeWorkerSchedule(currentName)
 
 
     def addWorker(self):
@@ -169,30 +245,25 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         worker = {}
 
 
-        username, ip, name, startTime, endTime, address, ok = EthSchedulerDialog.AddWorkerDialog.addWorker()
+        username, ip, name, address, ok = EthSchedulerDialog.AddWorkerDialog.addWorker(self)
         if ok != QtWidgets.QDialog.Accepted:
             return
 
         # add worker to the next line in the table
-        rowPosition = self.worker_tableWidget.rowCount()
-        self.worker_tableWidget.insertRow(rowPosition)
-        self.addItemToTable(rowPosition, name, ip, startTime, endTime, address)
+        self.addItemToTable( name, ip, address)
 
         worker['username'] = str(username)
         worker['name'] = str(name)
         worker['ip'] = str(ip)
-        worker['startTime'] = str(startTime)
-        worker['endTime'] = str(endTime)
         worker['address'] = str(address)
         worker['status'] = 'IDLE'
+        worker['times'] = {}
 
         self.workers[str(name)] = worker
 
 
         #append to the file on disk
         self.updateWorkerFile();
-
-        self.scheduleWorker(worker['name'],worker['startTime'],worker['endTime'])
 
 
     def deleteWorker(self):
@@ -215,6 +286,7 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
 
     def startWorker(self):
         '''
+        starts the currently selected worker
         '''
         currentRow = self.worker_tableWidget.currentRow()
         name = self.worker_tableWidget.item(currentRow, 0).text()
@@ -345,6 +417,7 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
 
 
 def main():
+    settings.init()
     app = QtWidgets.QApplication(sys.argv)  # A new instance of QApplication
     form = EthScheduler()                        # We set the form to be our App
     form.show()                         # Show the form
