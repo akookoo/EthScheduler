@@ -315,9 +315,21 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         for process in checkStdout[:]:
 
             if ethminer in process[:]:
+                self.setWorkerColor(name,True)
                 return True
-
+        self.setWorkerColor(name,False)
         return False
+
+    def setWorkerColor(self, name, enable):
+        '''
+        '''
+        for row in range(self.worker_tableWidget.rowCount()):
+            currentName = self.worker_tableWidget.item(row, 0).text()
+            if currentName == name:
+                if enable:
+                    self.worker_tableWidget.item(row, 0).setBackground(settings.GREEN)
+                else:
+                    self.worker_tableWidget.item(row, 0).setBackground(settings.YELLOW)
     
 
     def workerPulse(self, name):
@@ -339,6 +351,7 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         '''
         currentWorker = {}
         print("Starting: "+ name+" Time is: "+str(datetime.now().time()))
+        self.setWorkerColor(name,True)
 
         for key, item in  self.workers.items():
             if key == name:
@@ -371,7 +384,7 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         '''
         currentWorker = {}
         print("Stopping: "+ name+" Time is: "+str(datetime.now().time())) 
-
+        self.setWorkerColor(name,False)
         for key, item in  self.workers.items():
             if key == name:
                 currentWorker = self.workers[key]
@@ -415,6 +428,7 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
 
 
 def main():
+    QtCore.QMetaType.type("QVector");
     settings.init()
     app = QtWidgets.QApplication(sys.argv)  # A new instance of QApplication
     form = EthScheduler()                        # We set the form to be our App
