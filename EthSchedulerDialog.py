@@ -74,11 +74,13 @@ class AddTimeDialog(QtWidgets.QDialog):
         self.mode = QtWidgets.QComboBox()
         self.mode.addItems(settings.SCHEDULE_MODES)
         layout.addRow("Occurrence: ", self.mode)
+        self.mode.currentIndexChanged.connect(self.modeChanged)
 
         # enable day selection if weekly selected
         self.day = QtWidgets.QComboBox()
         self.day.addItems(settings.DAYS_OF_WEEK)
         layout.addRow("Day: ", self.day)
+        self.day.setEnabled(False)
 
         # OK and Cancel buttons
         buttons = QtWidgets.QDialogButtonBox(
@@ -87,6 +89,12 @@ class AddTimeDialog(QtWidgets.QDialog):
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         layout.addRow(buttons)
+
+    def modeChanged(self, row):
+        if self.mode.itemText(row) == settings.SCHEDULE_WEEKLY:
+            self.day.setEnabled(True)
+        else:
+            self.day.setEnabled(False)
 
     # get times and mode
     def getStartTime(self):
