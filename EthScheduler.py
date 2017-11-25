@@ -213,7 +213,7 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         time['day'] = str(day)
 
 
-        self.workers[currentName]['times'][str(startTime)] = time
+        self.workers[currentName]['times'][self.times_tableWidget.rowCount()] = time
         self.updateWorkerFile();
         self.scheduleWorker(currentName,time['startTime'],time['endTime'], time['mode'], time['day'])
 
