@@ -176,7 +176,7 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         updates a file on disk containing workers
         '''
 
-        target = open(settings.DEFAULT_CONFIG_LOCATION+'workers.txt', 'w')
+        target = open(settings.DEFAULT_CONFIG_LOCATION+settings.WORKER_FILE, 'w')
         target.write(str(self.workers))
 
 
@@ -184,8 +184,8 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         '''
         read the worker file into memory
         '''
-        if os.path.isfile(settings.DEFAULT_CONFIG_LOCATION+'workers.txt'):
-            with open(settings.DEFAULT_CONFIG_LOCATION+'workers.txt', 'r') as f:
+        if os.path.isfile(settings.DEFAULT_CONFIG_LOCATION+settings.WORKER_FILE):
+            with open(settings.DEFAULT_CONFIG_LOCATION+settings.WORKER_FILE, 'r') as f:
                 s = f.read()
                 self.workers = eval(s)
 

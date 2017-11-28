@@ -2,7 +2,7 @@
 
 ethminer --farm-recheck 400 --cl-global-work 16384 -G -RH -S us1.ethermine.org:4444 -FS us1.ethermine.org:14444 -O 0x41B145f770e5FCFd691aCFD9E94aaE19817d52b9.home
 
-minerd -a cryptonight -o stratum+tcp://mine.moneropool.com:3333 -u 46txnUHtjgb9Sf6GZUExYBS2T9bRxGgR4dGMXV9951VtRKPLGeQx1ZeHpEdFxEFvozNfoY7Hci7d94CaCFSPoNeE29MWEnT -p x
+minerd -a cryptonight -o stratum+tcp://mine.moneropool.com:3333 -u 4A4snmzjXiDSQmphQ7JbzZdaP5xzAGRhnWurqL2RHNL55yH4cCXkoQHWbwaVe4vUMveKAzAiA4j8xgUi29TpKXpm3yy7ZRW -p x
 
 
 
