@@ -110,18 +110,19 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         # print ("endPulse:"+str(endPulse))
 
         if mode == settings.SCHEDULE_DAILY:
-            self.scheduler.add_job(self.launchWorker,  'cron', [name],id=name+'start',hour=startTimeList[0], minute=startTimeList[1],replace_existing=True)
-            self.scheduler.add_job(self.stopWorker,  'cron', [name],id=name+'stop',hour=endTimeList[0], minute=endTimeList[1],replace_existing=True)
-            self.scheduler.add_job(self.workerPulse, 'cron', [name],id=name+'check', second=30, start_date=startPulse,end_date=endPulse,replace_existing=True)
+            self.scheduler.add_job(self.launchWorker,  'cron', [name],id=name+startTime,hour=startTimeList[0], minute=startTimeList[1],replace_existing=True)
+            self.scheduler.add_job(self.stopWorker,  'cron', [name],id=name+endTime,hour=endTimeList[0], minute=endTimeList[1],replace_existing=True)
+            self.scheduler.add_job(self.workerPulse, 'cron', [name],id=name+startTime+'check', second=30, start_date=startPulse,end_date=endPulse,replace_existing=True)
             print("Scheduling "+name + " to start at: "+ startTime+ " and end at: "+endTime+ " everyday")
         elif mode == settings.SCHEDULE_WEEKLY:
-            self.scheduler.add_job(self.launchWorker,  'cron', [name],id=name+'start',day_of_week=day, hour=startTimeList[0], minute=startTimeList[1],replace_existing=True)
-            self.scheduler.add_job(self.stopWorker,  'cron', [name],id=name+'stop',day_of_week=day, hour=endTimeList[0], minute=endTimeList[1],replace_existing=True)
-            self.scheduler.add_job(self.workerPulse, 'cron', [name],id=name+'check',day_of_week=day, second=30, start_date=startPulse,end_date=endPulse,replace_existing=True)
+            # print(day)
+            self.scheduler.add_job(self.launchWorker,  'cron', [name],id=name+startTime,day_of_week=str(day), hour=startTimeList[0], minute=startTimeList[1],replace_existing=True)
+            self.scheduler.add_job(self.stopWorker,  'cron', [name],id=name+endTime,day_of_week=str(day), hour=endTimeList[0], minute=endTimeList[1],replace_existing=True)
+            self.scheduler.add_job(self.workerPulse, 'cron', [name],id=name+startTime+'check',day_of_week=str(day), second=30, start_date=startPulse,end_date=endPulse,replace_existing=True)
             print("Scheduling "+name + " to start at: "+ startTime+ " and end at: "+endTime+ " on "+ day)
         elif mode == settings.SCHEDULE_ONCE:
-            self.scheduler.add_job(self.launchWorker, 'date',[name],id=name+'start', run_date=datetime(startPulse))
-            self.scheduler.add_job(self.stopWorker, 'date',[name],id=name+'stop', run_date=datetime(endPulse))
+            self.scheduler.add_job(self.launchWorker, 'date',[name],id=name+startTime, run_date=datetime(startPulse))
+            self.scheduler.add_job(self.stopWorker, 'date',[name],id=name+endTime, run_date=datetime(endPulse))
             # add pulse for interval
             # self.scheduler.add_job(self.workerPulse, 'cron', [name],id=name+'check', second=30, start_date=startPulse,end_date=endPulse,replace_existing=True)
             print("Scheduling "+name + " to start at: "+ startTime+ " and end at: "+endTime)
@@ -133,9 +134,9 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         '''
         schedules a worker
         '''
-        self.scheduler.remove_job(name+'start')
-        self.scheduler.remove_job(name+'stop')
-        self.scheduler.remove_job(name+'check')
+        # self.scheduler.remove_job(name+'start')
+        # self.scheduler.remove_job(name+'stop')
+        # self.scheduler.remove_job(name+'check')
 
 
     def tableCellClicked(self, row, column):
@@ -233,7 +234,7 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
 
         self.updateWorkerFile();
         self.times_tableWidget.removeRow(currentTimeRow)
-        # self.removeWorkerSchedule(currentName)
+        self.removeWorkerSchedule(currentName)
 
 
     def addWorker(self):
@@ -274,13 +275,12 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         toRemove = {}
         for key, item in self.workers.items():
             if key == currentName:
-                toRemove = self.workers[key]
+                del self.workers[key]
 
-        del toRemove
 
         self.updateWorkerFile();
         self.worker_tableWidget.removeRow(currentRow)
-        # self.removeWorkerSchedule(currentName)
+        self.removeWorkerSchedule(currentName)
 
 
 
