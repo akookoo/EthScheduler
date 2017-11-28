@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'EthScheduler.ui'
 #
-# Created by: PyQt5 UI code generator 5.9.1
+# Created by: PyQt5 UI code generator 5.5.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -37,25 +37,6 @@ class Ui_EthScheduler(object):
         self.worker_tableWidget.verticalHeader().setCascadingSectionResizes(True)
         self.worker_tableWidget.verticalHeader().setSortIndicatorShown(True)
         self.verticalLayout.addWidget(self.worker_tableWidget)
-        self.frame_2 = QtWidgets.QFrame(self.centralwidget)
-        self.frame_2.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
-        self.frame_2.setObjectName("frame_2")
-        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.frame_2)
-        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 9)
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.label_2 = QtWidgets.QLabel(self.frame_2)
-        self.label_2.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
-        self.label_2.setObjectName("label_2")
-        self.horizontalLayout_2.addWidget(self.label_2)
-        self.status_label = QtWidgets.QLabel(self.frame_2)
-        self.status_label.setObjectName("status_label")
-        self.horizontalLayout_2.addWidget(self.status_label)
-        self.verticalLayout.addWidget(self.frame_2)
-        self.start_worker_pushButton = QtWidgets.QPushButton(self.centralwidget)
-        self.start_worker_pushButton.setCheckable(True)
-        self.start_worker_pushButton.setObjectName("start_worker_pushButton")
-        self.verticalLayout.addWidget(self.start_worker_pushButton)
         self.frame = QtWidgets.QFrame(self.centralwidget)
         self.frame.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
@@ -107,7 +88,7 @@ class Ui_EthScheduler(object):
         self.verticalLayout.addWidget(self.frame_3)
         EthScheduler.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(EthScheduler)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 560, 20))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 560, 23))
         self.menubar.setObjectName("menubar")
         self.menuEthScheduler = QtWidgets.QMenu(self.menubar)
         self.menuEthScheduler.setObjectName("menuEthScheduler")
@@ -139,9 +120,6 @@ class Ui_EthScheduler(object):
         item.setText(_translate("EthScheduler", "IP"))
         item = self.worker_tableWidget.horizontalHeaderItem(2)
         item.setText(_translate("EthScheduler", "Address"))
-        self.label_2.setText(_translate("EthScheduler", "Status:"))
-        self.status_label.setText(_translate("EthScheduler", "IDLE"))
-        self.start_worker_pushButton.setText(_translate("EthScheduler", "Start Worker"))
         self.add_worker_pushButton.setText(_translate("EthScheduler", "Add Worker"))
         self.delete_worker_pushButton.setText(_translate("EthScheduler", "Delete Worker"))
         self.times_tableWidget.setSortingEnabled(True)

@@ -14,6 +14,8 @@ import settings
 
 class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
 
+    status_changed = QtCore.pyqtSignal(str, bool)
+
     def __init__(self):
         # access variables, methods etc in the AquetiOperationGUI.py file
         super(self.__class__, self).__init__()
@@ -48,12 +50,13 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         self.actionAdd_Worker.triggered.connect(self.addWorker)
         self.add_worker_pushButton.clicked.connect(self.addWorker)
         self.delete_worker_pushButton.clicked.connect(self.deleteWorker)
-        self.start_worker_pushButton.clicked.connect(self.startWorker)
         self.actionQuit.triggered.connect(self.close)
         self.worker_tableWidget.cellClicked.connect(self.tableCellClicked)
         self.worker_tableWidget.cellChanged.connect(self.tableCellChanged)
         self.add_time_pushButton.clicked.connect(self.addTime)
         self.remove_time_pushButton.clicked.connect(self.removeTime)
+
+        self.status_changed.connect(self.setWorkerColor)
 
         self.scheduler.start()
 
@@ -149,8 +152,6 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
                 for key, time in sorted(self.workers[key]['times'].items()):
                     self.addItemToTimeTable(time['startTime'], time['endTime'], time['mode'])
 
-        self.status_label.setText(currentWorker['status'])
-
     def tableCellChanged(self, row, column):
         '''
         triggered when a table cell is changed
@@ -213,7 +214,7 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         time['day'] = str(day)
 
 
-        self.workers[currentName]['times'][self.times_tableWidget.rowCount()] = time
+        self.workers[currentName]['times'][time['startTime']+time['endTime']] = time
         self.updateWorkerFile();
         self.scheduleWorker(currentName,time['startTime'],time['endTime'], time['mode'], time['day'])
 
@@ -224,16 +225,15 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         currentRow = self.worker_tableWidget.currentRow()
         currentName = self.worker_tableWidget.item(currentRow, 0).text()
 
-        currentTimeRow = self.worker_tableWidget.currentRow()
-        currentTimeName = self.worker_tableWidget.item(currentRow, 0).text()
+        currentTimeRow = self.times_tableWidget.currentRow()
+        currentTimeStart = self.times_tableWidget.item(currentTimeRow, 0).text()
+        currentTimeEnd = self.times_tableWidget.item(currentTimeRow, 1).text()
 
-        for key, item in self.workers.items():
-            if key == currentName:
-                del self.workers[key]['times'][currentTimeName]
+        del self.workers[currentName]['times'][currentTimeStart+currentTimeEnd]
 
         self.updateWorkerFile();
         self.times_tableWidget.removeRow(currentTimeRow)
-        self.removeWorkerSchedule(currentName)
+        # self.removeWorkerSchedule(currentName)
 
 
     def addWorker(self):
@@ -271,30 +271,17 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         currentRow = self.worker_tableWidget.currentRow()
         currentName = self.worker_tableWidget.item(currentRow, 0).text()
 
+        toRemove = {}
         for key, item in self.workers.items():
             if key == currentName:
-                del self.workers[key]
+                toRemove = self.workers[key]
 
+        del toRemove
 
         self.updateWorkerFile();
         self.worker_tableWidget.removeRow(currentRow)
-        self.removeWorkerSchedule(currentName)
+        # self.removeWorkerSchedule(currentName)
 
-
-
-    def startWorker(self):
-        '''
-        starts the currently selected worker
-        '''
-        currentRow = self.worker_tableWidget.currentRow()
-        name = self.worker_tableWidget.item(currentRow, 0).text()
-
-        if self.start_worker_pushButton.isChecked():
-            self.launchWorker(str(name))
-            self.start_worker_pushButton.setText('Stop Worker')
-        else:
-            self.stopWorker(str(name))
-            self.start_worker_pushButton.setText('Start Worker')
 
 
     def checkWorker(self, name):
@@ -314,10 +301,12 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         ethminer = "ethminer"
         for process in checkStdout[:]:
 
-            if ethminer in process[:]:
-                self.setWorkerColor(name,True)
+            if ethminer in str(process)[:]:
+                # self.setWorkerColor(name,True)
+                self.status_changed.emit(name,True)
                 return True
-        self.setWorkerColor(name,False)
+        # self.setWorkerColor(name,False)
+        self.status_changed.emit(name,False)
         return False
 
     def setWorkerColor(self, name, enable):
@@ -351,7 +340,8 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         '''
         currentWorker = {}
         print("Starting: "+ name+" Time is: "+str(datetime.now().time()))
-        self.setWorkerColor(name,True)
+        # self.setWorkerColor(name,True)
+        self.status_changed.emit(name,True)
 
         for key, item in  self.workers.items():
             if key == name:
@@ -384,7 +374,8 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         '''
         currentWorker = {}
         print("Stopping: "+ name+" Time is: "+str(datetime.now().time())) 
-        self.setWorkerColor(name,False)
+        # self.setWorkerColor(name,False)
+        self.status_changed.emit(name,False)
         for key, item in  self.workers.items():
             if key == name:
                 currentWorker = self.workers[key]

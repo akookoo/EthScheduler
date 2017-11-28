@@ -20,6 +20,6 @@ def init():
 	SCHEDULE_ONCE = 'once'
 	SCHEDULE_MODES = [SCHEDULE_ONCE, SCHEDULE_DAILY, SCHEDULE_WEEKLY ]
 	DAYS_OF_WEEK = ['none','mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
-	YELLOW = QtGui.QColor(216,212,127)
+	YELLOW = QtGui.QColor(193,182,92)
 	GREEN = QtGui.QColor(88,127,62)
 	WORKER_FILE = 'worker_data.txt'
