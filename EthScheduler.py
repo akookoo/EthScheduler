@@ -110,19 +110,18 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         # print ("endPulse:"+str(endPulse))
 
         if mode == settings.SCHEDULE_DAILY:
-            self.scheduler.add_job(self.launchWorker,  'cron', [name],id=name+startTime,hour=startTimeList[0], minute=startTimeList[1],replace_existing=True)
-            self.scheduler.add_job(self.stopWorker,  'cron', [name],id=name+endTime,hour=endTimeList[0], minute=endTimeList[1],replace_existing=True)
-            self.scheduler.add_job(self.workerPulse, 'cron', [name],id=name+startTime+'check', second=30, start_date=startPulse,end_date=endPulse,replace_existing=True)
+            self.scheduler.add_job(self.launchWorker,  'cron', [name],id=name+startTime+'daily',hour=startTimeList[0], minute=startTimeList[1],replace_existing=True)
+            self.scheduler.add_job(self.stopWorker,  'cron', [name],id=name+endTime+'daily',hour=endTimeList[0], minute=endTimeList[1],replace_existing=True)
+            self.scheduler.add_job(self.workerPulse, 'cron', [name],id=name+startTime+'check'+'daily', second=30, start_date=startPulse,end_date=endPulse,replace_existing=True)
             print("Scheduling "+name + " to start at: "+ startTime+ " and end at: "+endTime+ " everyday")
         elif mode == settings.SCHEDULE_WEEKLY:
-            # print(day)
-            self.scheduler.add_job(self.launchWorker,  'cron', [name],id=name+startTime,day_of_week=str(day), hour=startTimeList[0], minute=startTimeList[1],replace_existing=True)
-            self.scheduler.add_job(self.stopWorker,  'cron', [name],id=name+endTime,day_of_week=str(day), hour=endTimeList[0], minute=endTimeList[1],replace_existing=True)
-            self.scheduler.add_job(self.workerPulse, 'cron', [name],id=name+startTime+'check',day_of_week=str(day), second=30, start_date=startPulse,end_date=endPulse,replace_existing=True)
+            self.scheduler.add_job(self.launchWorker,  'cron', [name],id=name+startTime+"weekly",day_of_week=str(day), hour=startTimeList[0], minute=startTimeList[1],replace_existing=True)
+            self.scheduler.add_job(self.stopWorker,  'cron', [name],id=name+endTime+"weekly",day_of_week=str(day), hour=endTimeList[0], minute=endTimeList[1],replace_existing=True)
+            self.scheduler.add_job(self.workerPulse, 'cron', [name],id=name+startTime+'check'+"weekly",day_of_week=str(day), second=30, start_date=startPulse,end_date=endPulse,replace_existing=True)
             print("Scheduling "+name + " to start at: "+ startTime+ " and end at: "+endTime+ " on "+ day)
         elif mode == settings.SCHEDULE_ONCE:
-            self.scheduler.add_job(self.launchWorker, 'date',[name],id=name+startTime, run_date=datetime(startPulse))
-            self.scheduler.add_job(self.stopWorker, 'date',[name],id=name+endTime, run_date=datetime(endPulse))
+            self.scheduler.add_job(self.launchWorker, 'date',[name],id=name+startTime+"once", run_date=startPulse,replace_existing=True)
+            self.scheduler.add_job(self.stopWorker, 'date',[name],id=name+endTime+"once", run_date=endPulse,replace_existing=True)
             # add pulse for interval
             # self.scheduler.add_job(self.workerPulse, 'cron', [name],id=name+'check', second=30, start_date=startPulse,end_date=endPulse,replace_existing=True)
             print("Scheduling "+name + " to start at: "+ startTime+ " and end at: "+endTime)
