@@ -10,6 +10,7 @@ import time
 from datetime import datetime
 from apscheduler.schedulers.qt import QtScheduler
 import settings
+import pipes
 
 
 class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
@@ -236,6 +237,32 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         self.removeWorkerSchedule(currentName)
 
 
+
+    def exists_remote(self, host, path):
+        """Test if a file exists at path on a host accessible with SSH."""
+        status = subprocess.call(
+            ['ssh', host, 'test -f {}'.format(pipes.quote(path))])
+        print(status)
+        if status == 0:
+            return True
+        if status == 1:
+            return False
+        raise Exception('SSH failed')
+
+
+    def setupWorker(self, ip, username):
+        '''
+        setup the specified worker for mining
+        '''
+        if not self.exists_remote(username+'@'+ip, ' ~/.eth/ '):
+            self.runRemoteProcess(ip, username, 'mkdir ~/.eth/ ')
+
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        copyProcesses = subprocess.Popen(["scp","-rp", dir_path+"/miners" , "%s@%s:~/.eth/"% (username,ip)])
+
+
+
+
     def addWorker(self):
         '''
         add a worker to the interface
@@ -246,6 +273,10 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         username, ip, name, ok = EthSchedulerDialog.AddWorkerDialog.addWorker(self)
         if ok != QtWidgets.QDialog.Accepted:
             return
+
+        # setup the worker for mining
+        self.setupWorker(ip, username)
+
 
         # add worker to the next line in the table
         self.addItemToTable( name, ip, username)
@@ -280,6 +311,8 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         self.worker_tableWidget.removeRow(currentRow)
         self.removeWorkerSchedule(currentName)
 
+        if os.access('~/.eth/miners', os.R_OK):
+            self.runRemoteProcess(currentName['ip'], currentName['username'], 'rm -r ~/.eth/miners')
 
 
     def checkWorker(self, name, coin):
@@ -346,7 +379,7 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
 
         cmd = []
         if coin == settings.ETHERIUM:
-            cmd.append("~/.eth/ethminer")
+            cmd.append("~/.eth/miners/ethminer")
             cmd.append('--farm-recheck')
             cmd.append('400')
             cmd.append('--cl-global-work')
@@ -362,7 +395,7 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
             
         elif coin == settings.MONERO:  #./minerd -a cryptonight -o stratum+tcp://mine.moneropool.com:3333 -u ADDRESS -p x
 
-            cmd.append('~/.eth/minerd')
+            cmd.append('~/.eth/miners/minerd')
             cmd.append('-a')
             cmd.append('cryptonight')
             cmd.append('-o')
