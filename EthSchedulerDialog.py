@@ -19,9 +19,6 @@ class AddWorkerDialog(QtWidgets.QDialog):
         self.name = QtWidgets.QLineEdit("Worker1")
         layout.addRow("Name: ", self.name)
 
-        self.address = QtWidgets.QLineEdit(settings.DEFAULT_MINING_ADDRESS)
-        layout.addRow("Address: ", self.address)
-
 
         # OK and Cancel buttons
         buttons = QtWidgets.QDialogButtonBox(
@@ -42,9 +39,6 @@ class AddWorkerDialog(QtWidgets.QDialog):
     def getName(self):
         return self.name.text()
 
-    def getAddress(self):
-        return self.address.text()
-
     # static method to create the dialog and return (date, time, accepted)
     @staticmethod
     def addWorker(parent = None):
@@ -53,8 +47,7 @@ class AddWorkerDialog(QtWidgets.QDialog):
         username = dialog.getUsername()
         ip = dialog.getIp()
         name = dialog.getName()
-        address = dialog.getAddress()
-        return (username, ip, name, address , result == QtWidgets.QDialog.Accepted)
+        return (username, ip, name, result == QtWidgets.QDialog.Accepted)
 
 
 
@@ -81,6 +74,13 @@ class AddTimeDialog(QtWidgets.QDialog):
         self.day.addItems(settings.DAYS_OF_WEEK)
         layout.addRow("Day: ", self.day)
         self.day.setEnabled(False)
+
+        self.coin = QtWidgets.QComboBox()
+        self.coin.addItems(settings.MINERS)
+        layout.addRow("Coin: ", self.coin)
+
+        self.address = QtWidgets.QLineEdit(settings.DEFAULT_MINING_ADDRESS)
+        layout.addRow("Address: ", self.address)
 
         # OK and Cancel buttons
         buttons = QtWidgets.QDialogButtonBox(
@@ -109,6 +109,12 @@ class AddTimeDialog(QtWidgets.QDialog):
     def getDay(self):
         return self.day.currentText()
 
+    def getCoin(self):
+        return self.coin.currentText()
+
+    def getAddress(self):
+        return self.address.text()
+
     # static method to create the dialog and return (date, time, accepted)
     @staticmethod
     def addTime(parent = None):
@@ -118,4 +124,6 @@ class AddTimeDialog(QtWidgets.QDialog):
         endTime = dialog.getEndTime()
         mode = dialog.getMode()
         day = dialog.getDay()
-        return (startTime, endTime, mode, day, result == QtWidgets.QDialog.Accepted)
+        coin = dialog.getCoin()
+        address = dialog.getAddress()
+        return (startTime, endTime, mode, day, coin, address, result == QtWidgets.QDialog.Accepted)

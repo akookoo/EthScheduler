@@ -39,12 +39,12 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
 
 
             # add the item to the table
-            self.addItemToTable( value['name'], value['ip'], value['address'])
+            self.addItemToTable( value['name'], value['ip'], value['username'])
             
             # start schedules for each item
             for key, time in sorted(value['times'].items()):
-                self.scheduleWorker(value['name'],time['startTime'],time['endTime'], time['mode'], time['day'])
-                self.addItemToTimeTable(time['startTime'], time['endTime'], time['mode'])
+                self.scheduleWorker(value['name'],time['startTime'],time['endTime'], time['mode'], time['day'], time['coin'], time['address'])
+                self.addItemToTimeTable(time['startTime'], time['endTime'], time['mode'], time['day'], time['coin'],time['address'])
 
         # setup signals and slots
         self.actionAdd_Worker.triggered.connect(self.addWorker)
@@ -61,7 +61,7 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         self.scheduler.start()
 
 
-    def addItemToTimeTable(self, startTime, endTime, mode ):
+    def addItemToTimeTable(self, startTime, endTime, mode ,day , coin, address):
         '''
         add an item to the time table
         '''
@@ -71,10 +71,13 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         self.times_tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(startTime))
         self.times_tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(endTime))
         self.times_tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(mode))
+        self.times_tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(day))
+        self.times_tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(coin))
+        self.times_tableWidget.setItem(row, 5, QtWidgets.QTableWidgetItem(address))
 
         self.times_tableWidget.setCurrentCell(row,0)
 
-    def addItemToTable(self, name, ip, address):
+    def addItemToTable(self, name, ip, username):
         '''
         adds an item to the table
         '''
@@ -83,13 +86,13 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
 
         self.worker_tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(name))
         self.worker_tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(ip))
-        self.worker_tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(address))
+        self.worker_tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(username))
         self.worker_tableWidget.item(row, 0).setFlags(QtCore.Qt.ItemIsEnabled)
 
         self.worker_tableWidget.setCurrentCell(row,0)
 
 
-    def scheduleWorker(self, name, startTime, endTime, mode, day):
+    def scheduleWorker(self, name, startTime, endTime, mode, day, coin, address):
         '''
         schedules a worker
         '''
@@ -106,22 +109,19 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
             endTimePulse = 59
         endPulse = currentTime.replace(hour=int(endTimeList[0]), minute=endTimePulse )
 
-        # print ("startPulse:"+str(startPulse))
-        # print ("endPulse:"+str(endPulse))
-
         if mode == settings.SCHEDULE_DAILY:
-            self.scheduler.add_job(self.launchWorker,  'cron', [name],id=name+startTime+'daily',hour=startTimeList[0], minute=startTimeList[1],replace_existing=True)
-            self.scheduler.add_job(self.stopWorker,  'cron', [name],id=name+endTime+'daily',hour=endTimeList[0], minute=endTimeList[1],replace_existing=True)
-            self.scheduler.add_job(self.workerPulse, 'cron', [name],id=name+startTime+'check'+'daily', second=30, start_date=startPulse,end_date=endPulse,replace_existing=True)
+            self.scheduler.add_job(self.launchWorker,  'cron', [name, coin, address],id=name+startTime+coin+'daily',hour=startTimeList[0], minute=startTimeList[1],replace_existing=True)
+            self.scheduler.add_job(self.stopWorker,  'cron', [name, coin, address],id=name+endTime+coin+'daily',hour=endTimeList[0], minute=endTimeList[1],replace_existing=True)
+            self.scheduler.add_job(self.workerPulse, 'cron', [name, coin, address],id=name+startTime+'check'+coin+'daily', second=30, start_date=startPulse,end_date=endPulse,replace_existing=True)
             print("Scheduling "+name + " to start at: "+ startTime+ " and end at: "+endTime+ " everyday")
         elif mode == settings.SCHEDULE_WEEKLY:
-            self.scheduler.add_job(self.launchWorker,  'cron', [name],id=name+startTime+"weekly",day_of_week=str(day), hour=startTimeList[0], minute=startTimeList[1],replace_existing=True)
-            self.scheduler.add_job(self.stopWorker,  'cron', [name],id=name+endTime+"weekly",day_of_week=str(day), hour=endTimeList[0], minute=endTimeList[1],replace_existing=True)
-            self.scheduler.add_job(self.workerPulse, 'cron', [name],id=name+startTime+'check'+"weekly",day_of_week=str(day), second=30, start_date=startPulse,end_date=endPulse,replace_existing=True)
+            self.scheduler.add_job(self.launchWorker,  'cron', [name, coin, address],id=name+startTime+coin+"weekly",day_of_week=str(day), hour=startTimeList[0], minute=startTimeList[1],replace_existing=True)
+            self.scheduler.add_job(self.stopWorker,  'cron', [name, coin, address],id=name+endTime+coin+"weekly",day_of_week=str(day), hour=endTimeList[0], minute=endTimeList[1],replace_existing=True)
+            self.scheduler.add_job(self.workerPulse, 'cron', [name, coin, address],id=name+startTime+'check'+coin+"weekly",day_of_week=str(day), second=30, start_date=startPulse,end_date=endPulse,replace_existing=True)
             print("Scheduling "+name + " to start at: "+ startTime+ " and end at: "+endTime+ " on "+ day)
         elif mode == settings.SCHEDULE_ONCE:
-            self.scheduler.add_job(self.launchWorker, 'date',[name],id=name+startTime+"once", run_date=startPulse,replace_existing=True)
-            self.scheduler.add_job(self.stopWorker, 'date',[name],id=name+endTime+"once", run_date=endPulse,replace_existing=True)
+            self.scheduler.add_job(self.launchWorker, 'date',[name, coin, address],id=name+startTime+coin+"once", run_date=startPulse,replace_existing=True)
+            self.scheduler.add_job(self.stopWorker, 'date',[name, coin, address],id=name+endTime+coin+"once", run_date=endPulse,replace_existing=True)
             # add pulse for interval
             # self.scheduler.add_job(self.workerPulse, 'cron', [name],id=name+'check', second=30, start_date=startPulse,end_date=endPulse,replace_existing=True)
             print("Scheduling "+name + " to start at: "+ startTime+ " and end at: "+endTime)
@@ -150,7 +150,7 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
             if key == currentName:
                 currentWorker =  self.workers[key]
                 for key, time in sorted(self.workers[key]['times'].items()):
-                    self.addItemToTimeTable(time['startTime'], time['endTime'], time['mode'])
+                    self.addItemToTimeTable(time['startTime'], time['endTime'], time['mode'], time['day'], time['coin'], time['address'])
 
     def tableCellChanged(self, row, column):
         '''
@@ -163,8 +163,6 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
 
                 if(column == 1):
                     self.workers[key]['ip'] = str(self.worker_tableWidget.item(row, column).text())
-                elif(column == 4):
-                    self.workers[key]['address'] = str(self.worker_tableWidget.item(row, column).text())
 
                 self.updateWorkerFile();
 
@@ -197,11 +195,11 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         '''
         #append to the file on disk
 
-        startTime, endTime, mode, day, ok = EthSchedulerDialog.AddTimeDialog.addTime(self)
+        startTime, endTime, mode, day, coin, address, ok = EthSchedulerDialog.AddTimeDialog.addTime(self)
         if ok != QtWidgets.QDialog.Accepted:
             return
 
-        self.addItemToTimeTable( startTime, endTime, mode)
+        self.addItemToTimeTable( startTime, endTime, mode, day, coin, address)
 
         currentRow = self.worker_tableWidget.currentRow()
         currentName = self.worker_tableWidget.item(currentRow, 0).text()
@@ -212,11 +210,13 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         time['endTime'] = str(endTime)
         time['mode'] = str(mode)
         time['day'] = str(day)
+        time['coin'] = str(coin)
+        time['address'] = str(address)
 
 
         self.workers[currentName]['times'][time['startTime']+time['endTime']] = time
         self.updateWorkerFile();
-        self.scheduleWorker(currentName,time['startTime'],time['endTime'], time['mode'], time['day'])
+        self.scheduleWorker(currentName,time['startTime'],time['endTime'], time['mode'], time['day'], time['coin'], time['address'])
 
     def removeTime(self):
         '''
@@ -243,17 +243,16 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         worker = {}
 
 
-        username, ip, name, address, ok = EthSchedulerDialog.AddWorkerDialog.addWorker(self)
+        username, ip, name, ok = EthSchedulerDialog.AddWorkerDialog.addWorker(self)
         if ok != QtWidgets.QDialog.Accepted:
             return
 
         # add worker to the next line in the table
-        self.addItemToTable( name, ip, address)
+        self.addItemToTable( name, ip, username)
 
         worker['username'] = str(username)
         worker['name'] = str(name)
         worker['ip'] = str(ip)
-        worker['address'] = str(address)
         worker['status'] = 'IDLE'
         worker['times'] = {}
 
@@ -283,11 +282,11 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
 
 
 
-    def checkWorker(self, name):
+    def checkWorker(self, name, coin):
         '''
         checks the system for running ethminer
         '''
-        CHECK = "ps cax | grep ethminer"
+        CHECK = "ps cax | grep "+coin
 
         currentWorker = {}
         for key, item in  self.workers.items():
@@ -297,10 +296,9 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         checkProcesses = subprocess.Popen(["ssh", "%s@%s"% (currentWorker['username'],currentWorker['ip']), CHECK], stdout=subprocess.PIPE, shell=False, stderr=subprocess.PIPE)
         checkStdout = checkProcesses.stdout.readlines()
 
-        ethminer = "ethminer"
         for process in checkStdout[:]:
 
-            if ethminer in str(process)[:]:
+            if coin in str(process)[:]:
                 # self.setWorkerColor(name,True)
                 self.status_changed.emit(name,True)
                 return True
@@ -320,20 +318,20 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
                     self.worker_tableWidget.item(row, 0).setBackground(settings.YELLOW)
     
 
-    def workerPulse(self, name):
+    def workerPulse(self, name, coin, address):
         '''
         checks worker and restarts if not found
         '''
-        rc = self.checkWorker(name)
+        rc = self.checkWorker(name, coin)
         
         if not rc:
             print("Unable to detect: "+ name+" Restarting: "+str(datetime.now().time()))
-            self.launchWorker(name)
+            self.launchWorker(name, coin, address)
         else:
             print(name+" was found: "+str(datetime.now().time()))
 
 
-    def launchWorker(self, name):
+    def launchWorker(self, name, coin, address):
         '''
         starts the specified worker
         '''
@@ -346,28 +344,41 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
             if key == name:
                 currentWorker = self.workers[key]
 
+        cmd = []
+        if coin == settings.ETHERIUM:
+            cmd.append("~/.eth/ethminer")
+            cmd.append('--farm-recheck')
+            cmd.append('400')
+            cmd.append('--cl-global-work')
+            cmd.append('16384')
+            cmd.append('-G')
+            cmd.append('-RH')
+            cmd.append('-S')
+            cmd.append('us1.ethermine.org:4444')
+            cmd.append('-FS')
+            cmd.append('us1.ethermine.org:14444')
+            cmd.append('-O')
+            cmd.append( str(address))
+            
+        elif coin == settings.MONERO:  #./minerd -a cryptonight -o stratum+tcp://mine.moneropool.com:3333 -u ADDRESS -p x
 
-        addressName = currentWorker['address']+"."+name
-        cmd = ["~/.eth/ethminer"]
-        cmd.append('--farm-recheck')
-        cmd.append('400')
-        cmd.append('--cl-global-work')
-        cmd.append('16384')
-        cmd.append('-G')
-        cmd.append('-RH')
-        cmd.append('-S')
-        cmd.append('us1.ethermine.org:4444')
-        cmd.append('-FS')
-        cmd.append('us1.ethermine.org:14444')
-        cmd.append('-O')
-        cmd.append( str(addressName))
+            cmd.append('~/.eth/minerd')
+            cmd.append('-a')
+            cmd.append('cryptonight')
+            cmd.append('-o')
+            cmd.append('stratum+tcp://mine.moneropool.com:3333')
+            cmd.append('-u')
+            cmd.append(str(address))
+            cmd.append('-p')
+            cmd.append('x')
+
         cmd.extend(['>>', '~/.eth/log.txt', '2>&1'])
 
         # print(' '.join(cmd))
         self.runRemoteProcess(currentWorker['ip'],currentWorker['username'], ' '.join(cmd))
         currentWorker['status'] = 'WORKING'
 
-    def stopWorker(self, name):
+    def stopWorker(self, name, coin, address):
         '''
         stops the specified worker
         '''
@@ -382,8 +393,15 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
 
         cmd = ["pkill"]
         cmd.append('-15')
-        cmd.append('ethminer')
+
+        if coin == settings.ETHERIUM:
+            cmd.append('ethminer')
+        elif coin == settings.MONERO:
+            cmd.append('minerd')
+
         self.runRemoteProcess(currentWorker['ip'], currentWorker['username'], ' '.join(cmd))
+        if os.access('~/.eth/log.txt', os.R_OK):
+            self.runRemoteProcess(currentWorker['ip'], currentWorker['username'], 'rm ~/.eth/log.txt')
         currentWorker['status'] = 'IDLE'
 
 
@@ -411,8 +429,9 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
         shuts down the GUI
         '''
         # stop all workers?
-        for key, item in  self.workers.items():
-            self.stopWorker(self.workers[key]['name'])
+        for key, value in  self.workers.items():
+            for key, time in sorted(value['times'].items()):
+                self.stopWorker(value['name'], time['coin'], time['address'])
 
         self.close()
 

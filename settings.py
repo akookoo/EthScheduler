@@ -12,6 +12,9 @@ def init():
 	global YELLOW
 	global GREEN
 	global WORKER_FILE
+	global MINERS
+	global ETHERIUM
+	global MONERO
 
 	DEFAULT_CONFIG_LOCATION = "/home/bradley/.eth/"
 	DEFAULT_MINING_ADDRESS = "0x41B145f770e5FCFd691aCFD9E94aaE19817d52b9"
@@ -23,3 +26,7 @@ def init():
 	YELLOW = QtGui.QColor(193,182,92)
 	GREEN = QtGui.QColor(88,127,62)
 	WORKER_FILE = 'worker_data.txt'
+
+	MONERO = 'minerd'
+	ETHERIUM = 'ethminer'
+	MINERS = [ETHERIUM, MONERO]

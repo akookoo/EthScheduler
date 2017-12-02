@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'EthScheduler.ui'
 #
-# Created by: PyQt5 UI code generator 5.5.1
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_EthScheduler(object):
     def setupUi(self, EthScheduler):
         EthScheduler.setObjectName("EthScheduler")
-        EthScheduler.resize(560, 526)
+        EthScheduler.resize(685, 547)
         self.centralwidget = QtWidgets.QWidget(EthScheduler)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -32,6 +32,7 @@ class Ui_EthScheduler(object):
         item = QtWidgets.QTableWidgetItem()
         self.worker_tableWidget.setHorizontalHeaderItem(2, item)
         self.worker_tableWidget.horizontalHeader().setCascadingSectionResizes(True)
+        self.worker_tableWidget.horizontalHeader().setDefaultSectionSize(150)
         self.worker_tableWidget.horizontalHeader().setSortIndicatorShown(True)
         self.worker_tableWidget.horizontalHeader().setStretchLastSection(True)
         self.worker_tableWidget.verticalHeader().setCascadingSectionResizes(True)
@@ -61,7 +62,7 @@ class Ui_EthScheduler(object):
         self.times_tableWidget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.times_tableWidget.setShowGrid(False)
         self.times_tableWidget.setObjectName("times_tableWidget")
-        self.times_tableWidget.setColumnCount(3)
+        self.times_tableWidget.setColumnCount(6)
         self.times_tableWidget.setRowCount(0)
         item = QtWidgets.QTableWidgetItem()
         self.times_tableWidget.setHorizontalHeaderItem(0, item)
@@ -69,7 +70,13 @@ class Ui_EthScheduler(object):
         self.times_tableWidget.setHorizontalHeaderItem(1, item)
         item = QtWidgets.QTableWidgetItem()
         self.times_tableWidget.setHorizontalHeaderItem(2, item)
-        self.times_tableWidget.horizontalHeader().setDefaultSectionSize(150)
+        item = QtWidgets.QTableWidgetItem()
+        self.times_tableWidget.setHorizontalHeaderItem(3, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.times_tableWidget.setHorizontalHeaderItem(4, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.times_tableWidget.setHorizontalHeaderItem(5, item)
+        self.times_tableWidget.horizontalHeader().setDefaultSectionSize(100)
         self.times_tableWidget.horizontalHeader().setStretchLastSection(True)
         self.verticalLayout.addWidget(self.times_tableWidget)
         self.frame_3 = QtWidgets.QFrame(self.centralwidget)
@@ -88,7 +95,7 @@ class Ui_EthScheduler(object):
         self.verticalLayout.addWidget(self.frame_3)
         EthScheduler.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(EthScheduler)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 560, 23))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 685, 20))
         self.menubar.setObjectName("menubar")
         self.menuEthScheduler = QtWidgets.QMenu(self.menubar)
         self.menuEthScheduler.setObjectName("menuEthScheduler")
@@ -119,7 +126,7 @@ class Ui_EthScheduler(object):
         item = self.worker_tableWidget.horizontalHeaderItem(1)
         item.setText(_translate("EthScheduler", "IP"))
         item = self.worker_tableWidget.horizontalHeaderItem(2)
-        item.setText(_translate("EthScheduler", "Address"))
+        item.setText(_translate("EthScheduler", "Username"))
         self.add_worker_pushButton.setText(_translate("EthScheduler", "Add Worker"))
         self.delete_worker_pushButton.setText(_translate("EthScheduler", "Delete Worker"))
         self.times_tableWidget.setSortingEnabled(True)
@@ -129,6 +136,12 @@ class Ui_EthScheduler(object):
         item.setText(_translate("EthScheduler", "End"))
         item = self.times_tableWidget.horizontalHeaderItem(2)
         item.setText(_translate("EthScheduler", "Mode"))
+        item = self.times_tableWidget.horizontalHeaderItem(3)
+        item.setText(_translate("EthScheduler", "Day"))
+        item = self.times_tableWidget.horizontalHeaderItem(4)
+        item.setText(_translate("EthScheduler", "Coin"))
+        item = self.times_tableWidget.horizontalHeaderItem(5)
+        item.setText(_translate("EthScheduler", "Address"))
         self.add_time_pushButton.setText(_translate("EthScheduler", "Add Time"))
         self.remove_time_pushButton.setText(_translate("EthScheduler", "Remove Time"))
         self.menuEthScheduler.setTitle(_translate("EthScheduler", "EthScheduler"))
