@@ -2,9 +2,13 @@
 
 ethminer --farm-recheck 400 --cl-global-work 16384 -G -RH -S us1.ethermine.org:4444 -FS us1.ethermine.org:14444 -O 0x41B145f770e5FCFd691aCFD9E94aaE19817d52b9.home
 
-minerd -a cryptonight -o stratum+tcp://mine.moneropool.com:3333 -u 4JUdGzvrMFDWrUUwY3toJATSeNwjn54LkCnKBPRzDuhzi5vSepHfUckJNxRL2gjkNrSqtCoRUrEDAgRwsQvVCjZbRyHxgGEaCD58dJdLCB -p x
+minerd -a cryptonight -o stratum+tcp://xmr.crypto-pool.fr:3333 -u 4A4snmzjXiDSQmphQ7JbzZdaP5xzAGRhnWurqL2RHNL55yH4cCXkoQHWbwaVe4vUMveKAzAiA4j8xgUi29TpKXpm3yy7ZRW -p x
 
 
 
 
 huge criminal algebra vixen deodorant point hatchet vivid zodiac nerves zombie makeup hunter eagle unfit jobs august when muddy vocal island shipped school sewage hunter
+
+anybody eldest opposite luggage nabbing morsel muffin issued
+pests army hold loudly mews tyrant oyster nibs
+popular rural kidneys wiring faked nugget hold inroads nugget

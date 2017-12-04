@@ -391,7 +391,7 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
             cmd.append('-FS')
             cmd.append('us1.ethermine.org:14444')
             cmd.append('-O')
-            cmd.append( str(address))
+            cmd.append( str(address)+'.'+name)
             
         elif coin == settings.MONERO:  #./minerd -a cryptonight -o stratum+tcp://mine.moneropool.com:3333 -u ADDRESS -p x
 
@@ -399,7 +399,7 @@ class EthScheduler(QtWidgets.QMainWindow, EthSchedulerGUI.Ui_EthScheduler, ):
             cmd.append('-a')
             cmd.append('cryptonight')
             cmd.append('-o')
-            cmd.append('stratum+tcp://mine.moneropool.com:3333')
+            cmd.append('stratum+tcp://xmr.crypto-pool.fr:3333')
             cmd.append('-u')
             cmd.append(str(address))
             cmd.append('-p')
